@@ -11,6 +11,8 @@ string* marcas = new string[NUM_MARCAS];
 string* modelos = new string[NUM_MODELOS];
 string* marcasET = new string[numETs];
 
+
+
 struct carro {
     int id;
     string marca;
@@ -27,7 +29,6 @@ struct BSTNode {
     BSTNode* left;
     BSTNode* right;
 };
-
 
 struct ET {
     int id;
