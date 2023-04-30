@@ -22,13 +22,21 @@ struct carro {
     carro* next; // Apontador para o prox. carro
 };
 
+struct ABNode {
+    carro* car;
+    ABNode* left;
+    ABNode* right;
+
+    ABNode(carro* car) : car(car), left(nullptr), right(nullptr) {}
+};
+
 struct ET {
     int id;
     int capacidade;
     string mecanico;
     string marca;
     carro* carros;
-    carro* regRepCars; 
+    ABNode* repairedCarsAB;
     int carros_reparados;
     int capacidade_atual;
     int faturacao;
@@ -40,6 +48,42 @@ struct ListaDeEspera {
     ListaDeEspera* next;
 };
 
+
+
+void insertABNode(ABNode*& root, carro* car) {
+    if (root == nullptr) {
+        root = new ABNode(car);
+        return;
+    }
+
+    if (car->marca < root->car->marca) {
+        insertABNode(root->left, car);
+    }
+    else if (car->marca > root->car->marca) {
+        insertABNode(root->right, car);
+    }
+  
+}
+
+void deleteAB(ABNode* root) {
+    if (root == nullptr) {
+        return;
+    }
+
+    deleteAB(root->left);
+    deleteAB(root->right);
+    delete root;
+}
+
+void printABInOrder(ABNode* root) {
+    if (root == nullptr) {
+        return;
+    }
+
+    printABInOrder(root->left);
+    cout << "Car ID: " << root->car->id << ", Repair Cost: " << root->car->custo_reparacao << endl;
+    printABInOrder(root->right);
+}
 
 
 ET* inicializaEstacoes() {
@@ -69,7 +113,7 @@ ET* inicializaEstacoes() {
         newET->capacidade = rand() % 4 + 2; 
         newET->marca = marcas[rand() % NUM_MARCAS];
         newET->carros = nullptr; 
-        newET->regRepCars = nullptr;
+        newET->repairedCarsAB = nullptr;
         newET->carros_reparados = 0;
         newET->capacidade_atual = 0;
         newET->faturacao = 0;
@@ -355,6 +399,8 @@ void reparaCarros(ET* head) {
         carro* currentCar = currentET->carros;
         carro* previousCar = nullptr;
 
+        ABNode* repairedCarsAB = nullptr; // Moved outside the loop
+
         while (currentCar != nullptr) {
             carro* nextCar = currentCar->next;
 
@@ -370,11 +416,10 @@ void reparaCarros(ET* head) {
                 }
 
                 currentET->faturacao += currentCar->custo_reparacao;
-                // Adiciona carro a regRepCar
-                currentCar->next = currentET->regRepCars;
-                currentET->regRepCars = currentCar;
+                // Adiciona carro a repairedCarsAB
+                currentCar->next = nullptr;
+                insertABNode(repairedCarsAB, currentCar); // Insert into repairedCarsAB
 
-                
                 currentET->capacidade_atual--;
 
                 // Display
@@ -390,13 +435,53 @@ void reparaCarros(ET* head) {
                 // Proximo carro
                 previousCar = currentCar;
             }
-            //Atualiza apontador
+            // Atualiza apontador
             currentCar = nextCar;
         }
-        //Proxima ET
+
+        // Proxima ET
         currentET = currentET->next;
     }
 }
+
+
+
+void imprimirRepairedCars(ET* head) {
+    int etID;
+    cout << "Enter the ID of the ET: ";
+    cin >> etID;
+
+    ET* currentET = head;
+    while (currentET != nullptr) {
+        if (currentET->id == etID) {
+            ABNode* repairedCarsAB = currentET->repairedCarsAB;
+
+            int choice;
+            cout << "Choose an option: " << endl;
+            cout << "1. Print repaired cars in alphabetical order by marca." << endl;
+            cout << "2. Print repaired cars using the binary search tree." << endl;
+            cout << "Enter your choice: ";
+            cin >> choice;
+
+            cout << "Repaired cars of ET " << currentET->id << ":" << endl;
+            if (choice == 1) {
+                // Print in alphabetical order by marca
+                // printSortedCarsByMarca(repairedCarsAB);
+            }
+            else if (choice == 2) {
+                // Print using the binary search tree
+                printABInOrder(repairedCarsAB);
+            }
+            else {
+                cout << "Invalid choice. Please try again." << endl;
+            }
+
+            break;
+        }
+        currentET = currentET->next;
+    }
+}
+
 
 
 
@@ -414,7 +499,7 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead){
         cout << "(4).Remover Mecânico\n";
         cout << "(5).Gravar Oficina \n";
         cout << "(6).Carregar Oficina \n";
-        cout << "(7).Imprimir Oficina \n";
+        cout << "(7).Imprimir carros reparados \n";
         cout << "(9). Voltar Atrás \n";
         cout << "(0).Sair" << endl;
         cout << "Selecione a sua opção:";
@@ -440,10 +525,10 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead){
            
             break;
         case '7':
-           
+            imprimirRepairedCars(ethead);
             break;
         case '9':
-            void SimulaDia(ListaDeEspera * head, ET * ethead);
+            SimulaDia(head,ethead);
             break;
         case '0': cout << "Selecionou a opção sair! " << endl;
             exit(0);
@@ -454,6 +539,9 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead){
     } while (!sair);
     cin.ignore();
 }
+
+
+
 
 void SimulaDia(ListaDeEspera* head, ET* ethead) {
     char opcao = ' ';
@@ -509,20 +597,8 @@ int main() {
 
     SimulaDia(ListaDeEspera, ListaETs);
     
-    /*criaCarrosListaDeEspera(ListaDeEspera, 10);
-    criaCarrosListaDeEspera(ListaDeEspera, 10);
-    criaCarrosListaDeEspera(ListaDeEspera, 10);
-    criaCarrosListaDeEspera(ListaDeEspera, 10);
-    criaCarrosListaDeEspera(ListaDeEspera, 10);
-
-    insertCarsIntoETs(ListaDeEspera, ListaETs);
-    
-
-    
-    master(ListaETs, ListaDeEspera);*/
+   
    
     return 0;
 }
 
-//MANUEL
-//Carros com prioridade devem ficar no inicio da FILA.
