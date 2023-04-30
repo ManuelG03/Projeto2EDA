@@ -296,6 +296,9 @@ void master(ET* etHead, ListaDeEspera* head) {
         cout << "Total Faturacão: " << currentET->faturacao << " $" << endl;
 
         carro* currentCar = currentET->carros;
+        if (currentCar == nullptr) {
+            cout << "ET sem carros" << endl;
+        }
         while (currentCar != nullptr) {
             cout << "Carro: ID: " << currentCar->id << " | ";
             cout << currentCar->marca << "-";
@@ -317,6 +320,7 @@ void master(ET* etHead, ListaDeEspera* head) {
 
         currentET = currentET->next;
     }
+    cout << endl;
     verListaDeEspera(head);
 }
 
@@ -346,70 +350,51 @@ void incrementaDiasET(ET* head) {
 
 void reparaCarros(ET* head) {
     ET* currentET = head;
+
     while (currentET != nullptr) {
         carro* currentCar = currentET->carros;
         carro* previousCar = nullptr;
 
         while (currentCar != nullptr) {
-            if (currentCar->tempo_reparacao == currentCar->dias_ET) {
-                // Car needs to be repaired
+            carro* nextCar = currentCar->next;
+
+            if (currentCar->tempo_reparacao == currentCar->dias_ET || (rand() % 100) < 15) {
+                // Carro precisa ser reparado ou foi aleatoriamente selecionado
+
+                // Remove carro da ET
                 if (previousCar == nullptr) {
-                    // Car is the first in the ET's list
-                    currentET->carros = currentCar->next;
+                    currentET->carros = nextCar;
                 }
                 else {
-                    previousCar->next = currentCar->next;
+                    previousCar->next = nextCar;
                 }
 
-                // Add car to the regRepCars list of the ET
+                currentET->faturacao += currentCar->custo_reparacao;
+                // Adiciona carro a regRepCar
                 currentCar->next = currentET->regRepCars;
                 currentET->regRepCars = currentCar;
 
-                // Decrease ET's capacidade_atual by 1
+                
                 currentET->capacidade_atual--;
 
-                // Display message indicating car removal and reason
-                cout << "Car " << currentCar->id << " was removed from ET " << currentET->id << " - Reached maximum repair time." << endl;
-
-                // Delete currentCar if needed (assuming it's dynamically allocated)
-                // delete currentCar;
-
-                currentCar = currentCar->next;
-            }
-            else {
-                // Car is not due for repair yet, 15% chance of repair
-                int probability = rand() % 100;
-                if (probability < 15) {
-                    // Car gets repaired
-                    if (previousCar == nullptr) {
-                        // Car is the first in the ET's list
-                        currentET->carros = currentCar->next;
-                    }
-                    else {
-                        previousCar->next = currentCar->next;
-                    }
-
-                    // Add car to the regRepCars list of the ET
-                    currentCar->next = currentET->regRepCars;
-                    currentET->regRepCars = currentCar;
-
-                    // Decrease ET's capacidade_atual by 1
-                    currentET->capacidade_atual--;
-
-                    // Display message indicating car removal and reason
-                    cout << "Car " << currentCar->id << " was removed from ET " << currentET->id << " - Repaired." << endl;
-
-                    // Delete currentCar if needed (assuming it's dynamically allocated)
-                    // delete currentCar;
-
-                    currentCar = currentCar->next;
+                // Display
+                if (currentCar->tempo_reparacao == currentCar->dias_ET) {
+                    cout << "O carro com ID " << currentCar->id << " foi removido da ET " << currentET->id
+                        << " - Ultrapassou tempo máximo de reparação." << endl;
                 }
                 else {
-                    previousCar = currentCar;
-                    currentCar = currentCar->next;
+                    cout << "O carro com ID " << currentCar->id << " foi reparado na ET " << currentET->id << "." << endl;
                 }
             }
-        
+            else {
+                // Proximo carro
+                previousCar = currentCar;
+            }
+            //Atualiza apontador
+            currentCar = nextCar;
+        }
+        //Proxima ET
+        currentET = currentET->next;
     }
 }
 
