@@ -49,11 +49,6 @@ struct ListaDeEspera {
 };
 
 
-struct BSTNode {
-    carro data;
-    BSTNode* left;
-    BSTNode* right;
-};
 
 BSTNode* insert(BSTNode* root, carro* data) {
     if (root == nullptr) {
@@ -73,61 +68,16 @@ BSTNode* insert(BSTNode* root, carro* data) {
 }
 
 
-
-
-
-BSTNode* search(BSTNode* root, int targetID) {
-    if (root == nullptr || root->data.id == targetID) {
-        return root;
-    }
-
-    if (targetID < root->data.id) {
-        return search(root->left, targetID);
-    }
-    else {
-        return search(root->right, targetID);
-    }
-}
-
-BSTNode* findMin(BSTNode* node) {
-    while (node->left != nullptr) {
-        node = node->left;
-    }
-    return node;
-}
-
-BSTNode* remove(BSTNode* root, int targetID) {
+void printBST(BSTNode* root) {
     if (root == nullptr) {
-        return nullptr;
+        return;
     }
 
-    if (targetID < root->data.id) {
-        root->left = remove(root->left, targetID);
-    }
-    else if (targetID > root->data.id) {
-        root->right = remove(root->right, targetID);
-    }
-    else {
-        if (root->left == nullptr) {
-            BSTNode* temp = root->right;
-            delete root;
-            return temp;
-        }
-        else if (root->right == nullptr) {
-            BSTNode* temp = root->left;
-            delete root;
-            return temp;
-        }
-
-        BSTNode* minNode = findMin(root->right);
-        root->data = minNode->data;
-        root->right = remove(root->right, minNode->data.id);
-    }
-
-    return root;
+    printBST(root->left);
+    cout << "Car ID: " << root->data.id << endl;
+    // Print other properties of the carro struct if needed
+    printBST(root->right);
 }
-
-
 
 ET* inicializaEstacoes() {
     int index = 0;
@@ -508,16 +458,7 @@ void printRepairedCarsOfET(ET* head) {
     cout << "ET with ID " << etId << " not found." << endl;
 }
 
-void printBST(BSTNode* root) {
-    if (root == nullptr) {
-        return;
-    }
 
-    printBST(root->left);
-    cout << "Car ID: " << root->data.id << endl;
-    // Print other properties of the carro struct if needed
-    printBST(root->right);
-}
 
 
 
