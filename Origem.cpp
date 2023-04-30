@@ -416,7 +416,7 @@ void reparaCarros(ET* head) {
 
 
 void SimulaDia(ListaDeEspera* head, ET* ethead);
-void PainelDeGestao(ListaDeEspera* head, ET* ethead) {
+void PainelDeGestao(ListaDeEspera* head, ET* ethead){
     bool sair = false;
     char escolha = ' ';
 
