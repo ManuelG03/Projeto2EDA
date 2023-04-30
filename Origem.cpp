@@ -22,13 +22,12 @@ struct carro {
     carro* next; // Apontador para o prox. carro
 };
 
-struct ABNode {
-    carro* car;
-    ABNode* left;
-    ABNode* right;
-
-    ABNode(carro* car) : car(car), left(nullptr), right(nullptr) {}
+struct BSTNode {
+    carro data;
+    BSTNode* left;
+    BSTNode* right;
 };
+
 
 struct ET {
     int id;
@@ -36,7 +35,7 @@ struct ET {
     string mecanico;
     string marca;
     carro* carros;
-    ABNode* repairedCarsAB;
+    BSTNode* repaired_cars;
     int carros_reparados;
     int capacidade_atual;
     int faturacao;
@@ -49,41 +48,84 @@ struct ListaDeEspera {
 };
 
 
+struct BSTNode {
+    carro data;
+    BSTNode* left;
+    BSTNode* right;
+};
 
-void insertABNode(ABNode*& root, carro* car) {
+BSTNode* insert(BSTNode* root, carro* data) {
     if (root == nullptr) {
-        root = new ABNode(car);
-        return;
+        BSTNode* newNode = new BSTNode;
+        newNode->data = *data;  
+        newNode->left = nullptr;
+        newNode->right = nullptr;
+        return newNode;
     }
 
-    if (car->marca < root->car->marca) {
-        insertABNode(root->left, car);
-    }
-    else if (car->marca > root->car->marca) {
-        insertABNode(root->right, car);
-    }
-  
+    if (data->id < root->data.id)
+        root->left = insert(root->left, data);
+    else if (data->id > root->data.id)
+        root->right = insert(root->right, data);
+
+    return root;
 }
 
-void deleteAB(ABNode* root) {
-    if (root == nullptr) {
-        return;
+
+
+
+
+BSTNode* search(BSTNode* root, int targetID) {
+    if (root == nullptr || root->data.id == targetID) {
+        return root;
     }
 
-    deleteAB(root->left);
-    deleteAB(root->right);
-    delete root;
+    if (targetID < root->data.id) {
+        return search(root->left, targetID);
+    }
+    else {
+        return search(root->right, targetID);
+    }
 }
 
-void printABInOrder(ABNode* root) {
+BSTNode* findMin(BSTNode* node) {
+    while (node->left != nullptr) {
+        node = node->left;
+    }
+    return node;
+}
+
+BSTNode* remove(BSTNode* root, int targetID) {
     if (root == nullptr) {
-        return;
+        return nullptr;
     }
 
-    printABInOrder(root->left);
-    cout << "Car ID: " << root->car->id << ", Repair Cost: " << root->car->custo_reparacao << endl;
-    printABInOrder(root->right);
+    if (targetID < root->data.id) {
+        root->left = remove(root->left, targetID);
+    }
+    else if (targetID > root->data.id) {
+        root->right = remove(root->right, targetID);
+    }
+    else {
+        if (root->left == nullptr) {
+            BSTNode* temp = root->right;
+            delete root;
+            return temp;
+        }
+        else if (root->right == nullptr) {
+            BSTNode* temp = root->left;
+            delete root;
+            return temp;
+        }
+
+        BSTNode* minNode = findMin(root->right);
+        root->data = minNode->data;
+        root->right = remove(root->right, minNode->data.id);
+    }
+
+    return root;
 }
+
 
 
 ET* inicializaEstacoes() {
@@ -113,7 +155,7 @@ ET* inicializaEstacoes() {
         newET->capacidade = rand() % 4 + 2; 
         newET->marca = marcas[rand() % NUM_MARCAS];
         newET->carros = nullptr; 
-        newET->repairedCarsAB = nullptr;
+        newET->repaired_cars = nullptr;
         newET->carros_reparados = 0;
         newET->capacidade_atual = 0;
         newET->faturacao = 0;
@@ -399,8 +441,6 @@ void reparaCarros(ET* head) {
         carro* currentCar = currentET->carros;
         carro* previousCar = nullptr;
 
-        ABNode* repairedCarsAB = nullptr; // Moved outside the loop
-
         while (currentCar != nullptr) {
             carro* nextCar = currentCar->next;
 
@@ -416,9 +456,10 @@ void reparaCarros(ET* head) {
                 }
 
                 currentET->faturacao += currentCar->custo_reparacao;
-                // Adiciona carro a repairedCarsAB
+
+                // Adiciona carro ao BST de carros reparados na ET
                 currentCar->next = nullptr;
-                insertABNode(repairedCarsAB, currentCar); // Insert into repairedCarsAB
+                currentET->repaired_cars = insert(currentET->repaired_cars, currentCar);
 
                 currentET->capacidade_atual--;
 
@@ -432,54 +473,49 @@ void reparaCarros(ET* head) {
                 }
             }
             else {
-                // Proximo carro
+                // Próximo carro
                 previousCar = currentCar;
             }
             // Atualiza apontador
             currentCar = nextCar;
         }
 
-        // Proxima ET
+        // Próxima ET
         currentET = currentET->next;
     }
 }
 
 
 
-void imprimirRepairedCars(ET* head) {
-    int etID;
+void printRepairedCarsOfET(ET* head) {
+    int etId;
     cout << "Enter the ID of the ET: ";
-    cin >> etID;
+    cin >> etId;
 
     ET* currentET = head;
+
     while (currentET != nullptr) {
-        if (currentET->id == etID) {
-            ABNode* repairedCarsAB = currentET->repairedCarsAB;
-
-            int choice;
-            cout << "Choose an option: " << endl;
-            cout << "1. Print repaired cars in alphabetical order by marca." << endl;
-            cout << "2. Print repaired cars using the binary search tree." << endl;
-            cout << "Enter your choice: ";
-            cin >> choice;
-
-            cout << "Repaired cars of ET " << currentET->id << ":" << endl;
-            if (choice == 1) {
-                // Print in alphabetical order by marca
-                // printSortedCarsByMarca(repairedCarsAB);
-            }
-            else if (choice == 2) {
-                // Print using the binary search tree
-                printABInOrder(repairedCarsAB);
-            }
-            else {
-                cout << "Invalid choice. Please try again." << endl;
-            }
-
-            break;
+        if (currentET->id == etId) {
+            BSTNode* root = currentET->repaired_cars;
+            cout << "Repaired Cars of ET " << etId << ":" << endl;
+            printBST(root);
+            return;
         }
         currentET = currentET->next;
     }
+
+    cout << "ET with ID " << etId << " not found." << endl;
+}
+
+void printBST(BSTNode* root) {
+    if (root == nullptr) {
+        return;
+    }
+
+    printBST(root->left);
+    cout << "Car ID: " << root->data.id << endl;
+    // Print other properties of the carro struct if needed
+    printBST(root->right);
 }
 
 
@@ -525,7 +561,7 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead){
            
             break;
         case '7':
-            imprimirRepairedCars(ethead);
+            printRepairedCarsOfET(ethead);
             break;
         case '9':
             SimulaDia(head,ethead);
