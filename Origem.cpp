@@ -53,19 +53,28 @@ struct ListaDeEspera {
 BSTNode* insert(BSTNode* root, carro* data) {
     if (root == nullptr) {
         BSTNode* newNode = new BSTNode;
-        newNode->data = *data;  
+        newNode->data = *data;
         newNode->left = nullptr;
         newNode->right = nullptr;
         return newNode;
     }
 
-    if (data->id < root->data.id)
+    // Compare the "marca" values to determine the placement in the BST
+    if (data->marca < root->data.marca)
         root->left = insert(root->left, data);
-    else if (data->id > root->data.id)
+    else if (data->marca > root->data.marca)
         root->right = insert(root->right, data);
+    else {
+        // If the "marca" values are equal, decide based on car ID
+        if (data->id < root->data.id)
+            root->left = insert(root->left, data);
+        else if (data->id > root->data.id)
+            root->right = insert(root->right, data);
+    }
 
     return root;
 }
+
 
 
 void printBST(BSTNode* root) {
@@ -74,10 +83,10 @@ void printBST(BSTNode* root) {
     }
 
     printBST(root->left);
-    cout << "Car ID: " << root->data.id << endl;
-    // Print other properties of the carro struct if needed
+    cout << "Car ID: " << root->data.id << ", Marca: " << root->data.marca << endl;
     printBST(root->right);
 }
+
 
 ET* inicializaEstacoes() {
     int index = 0;
