@@ -1,12 +1,15 @@
 #include <stdlib.h>
 #include <string>
 #include <iostream>
+#include <fstream>
+#include "constantes.h";
+#include <locale.h>
 
 using namespace std;
 
-int id_ETS = 1;
-int id_Carros = 1;
-int numCarrosCriados = 0;
+string* marcas = new string[NUM_MARCAS];
+string* modelos = new string[NUM_MODELOS];
+string* marcasET = new string[numETs];
 
 struct carro {
     int id;
@@ -37,10 +40,24 @@ struct ListaDeEspera {
     ListaDeEspera* next;
 };
 
-ET* inicializaEstacoes() {
-    srand(time(0)); 
 
-    int numETs = rand() % 6 + 3; 
+
+ET* inicializaEstacoes() {
+    int index = 0;
+    string file = "marcas.txt";                                 
+    ifstream fileMarcas(file);
+
+    string marca;
+
+    if (fileMarcas.is_open()) {
+        int i = 0;
+        while (!fileMarcas.eof()) {
+            getline(fileMarcas, marcas[i++]);               
+        }
+    }
+    
+    srand(time(0)); 
+    
     ET* head = nullptr; 
     ET* current = nullptr; 
 
@@ -50,7 +67,7 @@ ET* inicializaEstacoes() {
         
         newET->id = id_ETS++;
         newET->capacidade = rand() % 4 + 2; 
-        newET->marca = "BMW";
+        newET->marca = marcas[rand() % NUM_MARCAS];
         newET->carros = nullptr; 
         newET->regRepCars = nullptr;
         newET->carros_reparados = 0;
@@ -58,6 +75,8 @@ ET* inicializaEstacoes() {
         newET->faturacao = 0;
         newET->next = nullptr; 
 
+        marcasET[index++] = newET->marca;
+        
         cout << "Introduza o mecanico para a ET " << newET->id << ": ";
         getline(cin, newET->mecanico); 
 
@@ -71,9 +90,12 @@ ET* inicializaEstacoes() {
             current = newET;
         }
     }
+    
 
     return head;
 }
+
+
 
 void imprimeListaETs(ET* head) {
     ET* current = head;
@@ -88,6 +110,51 @@ void imprimeListaETs(ET* head) {
         current = current->next;
     }
 }
+
+void organizaListaDeEspera(ListaDeEspera*& head) {
+    if (head == nullptr || head->next == nullptr) {
+        return;
+    }
+
+    ListaDeEspera* prioridadeHead = nullptr;
+    ListaDeEspera* prioridadeTail = nullptr;
+    ListaDeEspera* current = head;
+    ListaDeEspera* previous = nullptr;
+
+    while (current != nullptr) {
+        if (current->data->prioridade == 1) {
+            if (previous == nullptr) {
+                head = current->next;
+            }
+            else {
+                previous->next = current->next;
+            }
+
+            if (prioridadeHead == nullptr) {
+                prioridadeHead = current;
+                prioridadeTail = current;
+            }
+            else {
+                prioridadeTail->next = current;
+                prioridadeTail = current;
+            }
+
+            current = current->next;
+            prioridadeTail->next = nullptr;
+        }
+        else {
+            previous = current;
+            current = current->next;
+        }
+    }
+
+    if (prioridadeHead != nullptr) {
+        prioridadeTail->next = head;
+        head = prioridadeHead;
+    }
+}
+
+
 
 void adicionaListaDeEspera(ListaDeEspera*& head, carro* newCarro) {
     ListaDeEspera* newNode = new ListaDeEspera();
@@ -105,8 +172,7 @@ void adicionaListaDeEspera(ListaDeEspera*& head, carro* newCarro) {
         current->next = newNode;
     }
 }
-
-#include <cstring> 
+ 
 
 void insertCarsIntoETs(ListaDeEspera*& esperaHead, ET* etHead) {
     int totalCarsAdded = 0; 
@@ -179,78 +245,112 @@ void criaCarrosListaDeEspera(ListaDeEspera*& head, int numCarsToAdd) {
 
         
         newCarro->id = id_Carros++;
-        newCarro->marca = "BMW";
-        newCarro->modelo = "Modelo";
-        newCarro->prioridade = "Sim";
+        newCarro->marca = marcasET[rand() % numETs];
+        newCarro->modelo = modelos[rand() % NUM_MODELOS];
+        int probabilidade = rand() % 100;
+        if (probabilidade < 25) {
+            newCarro->prioridade = 1;
+        }
+        else {
+            newCarro->prioridade = 0;
+        }
         newCarro->tempo_reparacao = 4;
         newCarro->dias_ET = 0;
-        newCarro->custo_reparacao = 100;
+        newCarro->custo_reparacao = rand() % 120;
  
 
         adicionaListaDeEspera(head, newCarro);
     }
     numCarrosCriados += 10;
+    organizaListaDeEspera(head);
 }
 
-void printListaDeEspera(const ListaDeEspera* head) {
+void verListaDeEspera(const ListaDeEspera* head) {
     const ListaDeEspera* current = head;
     while (current != nullptr) {
         carro* currentCar = current->data;
 
-        cout << "Carro ID: " << currentCar->id;
-        cout << " Marca: " << currentCar->marca;
-        cout << " Modelo: " << currentCar->modelo;
-        // Print other car fields as needed
-
-        cout << endl;
-
+        cout << "Carro: ID: " << currentCar->id << " | ";
+        cout << currentCar->marca << "-";
+        cout << currentCar->modelo << " | ";
+        if (currentCar->prioridade == 1) {
+            cout << "Prioritario: " << "Sim" << endl;
+        }
+        else {
+            cout << "Prioritario: " << "Nao" << endl;
+        }
         current = current->next;
     }
 }
 
-void printETsAndCars(ET* etHead) {
+void master(ET* etHead, ListaDeEspera* head) {
     ET* currentET = etHead;
-
+    cout << "------------------------------------" << endl;
     while (currentET != nullptr) {
-        cout << "ET " << currentET->id << ":";
-        cout << "Mecanico: " << currentET->mecanico;
-        cout << "Capacidade: " << currentET->capacidade;
-        cout << "Marca: " << currentET->marca;
-        cout << "Carros inside:" << endl;
+        cout << "ET: " << currentET->id << " | ";
+        cout << "Mecanico: " << currentET->mecanico << " | ";
+        cout << "Capacidade: " << currentET->capacidade << " | ";
+        cout << "Carros: " << currentET->capacidade_atual << " | ";
+        cout << "Marca: " << currentET->marca << " | ";
+        cout << "Total Faturacao: " << currentET->faturacao << " $" << endl;
 
         carro* currentCar = currentET->carros;
         while (currentCar != nullptr) {
-            cout << "ID: " << currentCar->id;
-            cout << "Marca: " << currentCar->marca;
-            cout << "Modelo: " << currentCar->modelo;
-            cout << "Tempo de reparacao: " << currentCar->tempo_reparacao;
-            cout << "Custo de reparacao: " << currentCar->custo_reparacao;
-            cout << "Dias ET: " << currentCar->dias_ET << endl;
-            cout << "Prioridade: " << (currentCar->prioridade ? "True" : "False") << endl;
-            cout << "-----------------------------" << endl;
+            cout << "Carro: ID: " << currentCar->id << " | ";
+            cout << currentCar->marca << "-";
+            cout << currentCar->modelo << " | ";
+            if (currentCar->prioridade == 1) {
+                cout << "Prioritario: " << "Sim" << " | ";
+            }
+            else {
+                cout << "Prioritario: " << "Nao" << " | ";
+            }
+            cout << "Tempo reparação: " << currentCar->tempo_reparacao << " | ";
+            cout << "Dias na ET: " << currentCar->dias_ET << endl;
+            
 
             currentCar = currentCar->next;
         }
 
-        cout << "=============================" << endl;
+        cout << "------------------------------------" << endl;
 
         currentET = currentET->next;
     }
+    verListaDeEspera(head);
 }
 
 
 
 int main() {
+    {
+        setlocale(LC_ALL, "Portuguese");
+    }
+
+    string file = "modelos.txt";
+    ifstream fileMarcas(file);
+
+    if (fileMarcas.is_open()) {
+        int i = 0;
+        while (!fileMarcas.eof()) {
+            getline(fileMarcas, modelos[i++]);
+        }
+    }
+
     ListaDeEspera* ListaDeEspera = nullptr;
     ET* ListaETs = inicializaEstacoes();
-
+    
     criaCarrosListaDeEspera(ListaDeEspera, 10);
-    insertCarsIntoETs(ListaDeEspera, ListaETs);
-    insertCarsIntoETs(ListaDeEspera, ListaETs);
+    criaCarrosListaDeEspera(ListaDeEspera, 10);
+    criaCarrosListaDeEspera(ListaDeEspera, 10);
+    criaCarrosListaDeEspera(ListaDeEspera, 10);
+    criaCarrosListaDeEspera(ListaDeEspera, 10);
 
-    //printListaDeEspera(ListaDeEspera);
-    printETsAndCars(ListaETs);
-    cout << numCarrosCriados;
+    insertCarsIntoETs(ListaDeEspera, ListaETs);
+    
+
+    
+    master(ListaETs, ListaDeEspera);
+   
     return 0;
 }
 
