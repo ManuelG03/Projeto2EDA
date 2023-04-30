@@ -267,6 +267,7 @@ void criaCarrosListaDeEspera(ListaDeEspera*& head, int numCarsToAdd) {
 
 void verListaDeEspera(const ListaDeEspera* head) {
     const ListaDeEspera* current = head;
+    cout << "LISTA DE ESPERA: " << endl;
     while (current != nullptr) {
         carro* currentCar = current->data;
 
@@ -274,10 +275,10 @@ void verListaDeEspera(const ListaDeEspera* head) {
         cout << currentCar->marca << "-";
         cout << currentCar->modelo << " | ";
         if (currentCar->prioridade == 1) {
-            cout << "Prioritario: " << "Sim" << endl;
+            cout << "Prioritário: " << "Sim" << endl;
         }
         else {
-            cout << "Prioritario: " << "Nao" << endl;
+            cout << "Prioritário: " << "Nao" << endl;
         }
         current = current->next;
     }
@@ -292,7 +293,7 @@ void master(ET* etHead, ListaDeEspera* head) {
         cout << "Capacidade: " << currentET->capacidade << " | ";
         cout << "Carros: " << currentET->capacidade_atual << " | ";
         cout << "Marca: " << currentET->marca << " | ";
-        cout << "Total Faturacao: " << currentET->faturacao << " $" << endl;
+        cout << "Total Faturacão: " << currentET->faturacao << " $" << endl;
 
         carro* currentCar = currentET->carros;
         while (currentCar != nullptr) {
@@ -300,10 +301,10 @@ void master(ET* etHead, ListaDeEspera* head) {
             cout << currentCar->marca << "-";
             cout << currentCar->modelo << " | ";
             if (currentCar->prioridade == 1) {
-                cout << "Prioritario: " << "Sim" << " | ";
+                cout << "Prioritário: " << "Sim" << " | ";
             }
             else {
-                cout << "Prioritario: " << "Nao" << " | ";
+                cout << "Prioritário: " << "Nao" << " | ";
             }
             cout << "Tempo reparação: " << currentCar->tempo_reparacao << " | ";
             cout << "Dias na ET: " << currentCar->dias_ET << endl;
@@ -319,13 +320,195 @@ void master(ET* etHead, ListaDeEspera* head) {
     verListaDeEspera(head);
 }
 
+void incrementaDiasET(ET* head) {
+    if (numCarrosCriados == 0) {
+        return;
+    }
+
+    ET* currentET = head;
+
+    while (currentET != nullptr) {
+        carro* currentCar = currentET->carros;
+
+        while (currentCar != nullptr) {
+            // Increment dias_ET for the current car
+            currentCar->dias_ET = currentCar->dias_ET + 1;
+
+            // Move to the next car
+            currentCar = currentCar->next;
+        }
+
+        // Move to the next ET
+        currentET = currentET->next;
+    }
+}
 
 
+void reparaCarros(ET* head) {
+    ET* currentET = head;
+    while (currentET != nullptr) {
+        carro* currentCar = currentET->carros;
+        carro* previousCar = nullptr;
+
+        while (currentCar != nullptr) {
+            if (currentCar->tempo_reparacao == currentCar->dias_ET) {
+                // Car needs to be repaired
+                if (previousCar == nullptr) {
+                    // Car is the first in the ET's list
+                    currentET->carros = currentCar->next;
+                }
+                else {
+                    previousCar->next = currentCar->next;
+                }
+
+                // Add car to the regRepCars list of the ET
+                currentCar->next = currentET->regRepCars;
+                currentET->regRepCars = currentCar;
+
+                // Decrease ET's capacidade_atual by 1
+                currentET->capacidade_atual--;
+
+                // Display message indicating car removal and reason
+                cout << "Car " << currentCar->id << " was removed from ET " << currentET->id << " - Reached maximum repair time." << endl;
+
+                // Delete currentCar if needed (assuming it's dynamically allocated)
+                // delete currentCar;
+
+                currentCar = currentCar->next;
+            }
+            else {
+                // Car is not due for repair yet, 15% chance of repair
+                int probability = rand() % 100;
+                if (probability < 15) {
+                    // Car gets repaired
+                    if (previousCar == nullptr) {
+                        // Car is the first in the ET's list
+                        currentET->carros = currentCar->next;
+                    }
+                    else {
+                        previousCar->next = currentCar->next;
+                    }
+
+                    // Add car to the regRepCars list of the ET
+                    currentCar->next = currentET->regRepCars;
+                    currentET->regRepCars = currentCar;
+
+                    // Decrease ET's capacidade_atual by 1
+                    currentET->capacidade_atual--;
+
+                    // Display message indicating car removal and reason
+                    cout << "Car " << currentCar->id << " was removed from ET " << currentET->id << " - Repaired." << endl;
+
+                    // Delete currentCar if needed (assuming it's dynamically allocated)
+                    // delete currentCar;
+
+                    currentCar = currentCar->next;
+                }
+                else {
+                    previousCar = currentCar;
+                    currentCar = currentCar->next;
+                }
+            }
+        
+    }
+}
+
+
+
+void SimulaDia(ListaDeEspera* head, ET* ethead);
+void PainelDeGestao(ListaDeEspera* head, ET* ethead) {
+    bool sair = false;
+    char escolha = ' ';
+
+    do {
+        cout << endl;
+        cout << "***** Bem Vindo Gestor ***** \n";
+        cout << "(1).Reparação Manual \n";
+        cout << "(2).Atualizar tempo de reparação \n";
+        cout << "(3).Adicionar Prioridade\n";
+        cout << "(4).Remover Mecânico\n";
+        cout << "(5).Gravar Oficina \n";
+        cout << "(6).Carregar Oficina \n";
+        cout << "(7).Imprimir Oficina \n";
+        cout << "(9). Voltar Atrás \n";
+        cout << "(0).Sair" << endl;
+        cout << "Selecione a sua opção:";
+        cin >> escolha;
+        switch (escolha)
+        {
+        case '1':
+            
+            break;
+        case '2':
+           
+            break;
+        case '3':
+            
+            break;
+        case '4':
+            
+            break;
+        case '5':
+            
+            break;
+        case '6':
+           
+            break;
+        case '7':
+           
+            break;
+        case '9':
+            void SimulaDia(ListaDeEspera * head, ET * ethead);
+            break;
+        case '0': cout << "Selecionou a opção sair! " << endl;
+            exit(0);
+            break;
+        default: cout << "Escolha Inválida!" << endl;
+            break;
+        }
+    } while (!sair);
+    cin.ignore();
+}
+
+void SimulaDia(ListaDeEspera* head, ET* ethead) {
+    char opcao = ' ';
+    bool sair = false;
+
+    do {
+        cout << endl;
+        cout << "(s): Simular um dia " << endl;
+        cout << "(g): Painel de gestão" << endl;
+        cout << "(0): SAIR" << endl;
+        cin >> opcao;
+        switch (opcao) {
+        case 's':
+        case 'S':
+            cout << endl;
+            cout << "Dia simulado com sucesso!\n";
+            incrementaDiasET(ethead);
+            reparaCarros(ethead);
+            criaCarrosListaDeEspera(head, 10);
+            insertCarsIntoETs(head, ethead);
+            master(ethead, head);
+            break;
+        case 'g':
+        case 'G':
+            PainelDeGestao(head,ethead);
+            break;
+        case '0':
+            exit(0);
+            cout << "Até à proxima!\n";
+            break;
+        default:
+            cout << "Escolha inválida!" << endl;
+            break;
+        }
+    } while (!sair);
+}
 int main() {
     {
         setlocale(LC_ALL, "Portuguese");
     }
-
     string file = "modelos.txt";
     ifstream fileMarcas(file);
 
@@ -338,8 +521,10 @@ int main() {
 
     ListaDeEspera* ListaDeEspera = nullptr;
     ET* ListaETs = inicializaEstacoes();
+
+    SimulaDia(ListaDeEspera, ListaETs);
     
-    criaCarrosListaDeEspera(ListaDeEspera, 10);
+    /*criaCarrosListaDeEspera(ListaDeEspera, 10);
     criaCarrosListaDeEspera(ListaDeEspera, 10);
     criaCarrosListaDeEspera(ListaDeEspera, 10);
     criaCarrosListaDeEspera(ListaDeEspera, 10);
@@ -349,7 +534,7 @@ int main() {
     
 
     
-    master(ListaETs, ListaDeEspera);
+    master(ListaETs, ListaDeEspera);*/
    
     return 0;
 }
