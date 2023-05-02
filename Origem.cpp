@@ -4,51 +4,14 @@
 #include <fstream>
 #include "constantes.h";
 #include <locale.h>
+#include "structs.h"
+#include "ficheiros.h"
 
 using namespace std;
 
 string* marcas = new string[NUM_MARCAS];
 string* modelos = new string[NUM_MODELOS];
 string* marcasET = new string[20];
-
-
-
-struct carro {
-    int id;
-    string marca;
-    string modelo;
-    int tempo_reparacao;
-    int custo_reparacao;
-    int dias_ET;
-    bool prioridade;
-    carro* next; // Apontador para o prox. carro
-};
-
-struct BSTNode {
-    carro data;
-    BSTNode* left;
-    BSTNode* right;
-};
-
-struct ET {
-    int id;
-    int capacidade;
-    string mecanico;
-    string marca;
-    carro* carros;
-    BSTNode* repaired_cars;
-    int carros_reparados;
-    int capacidade_atual;
-    int faturacao;
-    ET* next; 
-};
-
-struct ListaDeEspera {
-    carro* data;
-    ListaDeEspera* next;
-};
-
-
 
 BSTNode* insert(BSTNode* root, carro* data) {
     if (root == nullptr) {
@@ -75,8 +38,6 @@ BSTNode* insert(BSTNode* root, carro* data) {
     return root;
 }
 
-
-
 void printBST(BSTNode* root) {
     if (root == nullptr) {
         return;
@@ -86,7 +47,6 @@ void printBST(BSTNode* root) {
     cout << "Carro ID: " << root->data.id << ", Marca: " << root->data.marca << "-" << root->data.modelo << endl;
     printBST(root->right);
 }
-
 
 ET* inicializaEstacoes() {
     int index = 0;
@@ -140,8 +100,6 @@ ET* inicializaEstacoes() {
 
     return head;
 }
-
-
 
 void imprimeListaETs(ET* head) {
     ET* current = head;
@@ -653,6 +611,7 @@ void SimulaDia(ListaDeEspera* head, ET* ethead);
 void PainelDeGestao(ListaDeEspera* head, ET* ethead){
     bool sair = false;
     char escolha = ' ';
+    carro* CARRO = head->data;
 
     do {
         cout << endl;
@@ -680,10 +639,11 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead){
             removerMecanico(ethead);
             break;
         case '4':
-            
+            gravarFicheiros(head, ethead, numETs);
+            cout << "A gravação nos ficheiros foi feita com sucesso." << endl;
             break;
         case '5':
-            
+            carregarFicheiros(head);
             break;
         case '6':
             adicionarET(ethead);

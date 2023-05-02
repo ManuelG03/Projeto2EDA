@@ -13,4 +13,3 @@ int numETs = contarETS();
 int id_ETS = 1;
 int id_Carros = 1;
 int numCarrosCriados = 0;
-
