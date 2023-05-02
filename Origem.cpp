@@ -9,7 +9,7 @@ using namespace std;
 
 string* marcas = new string[NUM_MARCAS];
 string* modelos = new string[NUM_MODELOS];
-string* marcasET = new string[numETs];
+string* marcasET = new string[20];
 
 
 
@@ -60,9 +60,9 @@ BSTNode* insert(BSTNode* root, carro* data) {
     }
 
     // Compare the "marca" values to determine the placement in the BST
-    if (data->marca < root->data.marca)
+    if (data->modelo < root->data.modelo)
         root->left = insert(root->left, data);
-    else if (data->marca > root->data.marca)
+    else if (data->modelo > root->data.modelo)
         root->right = insert(root->right, data);
     else {
         // If the "marca" values are equal, decide based on car ID
@@ -83,7 +83,7 @@ void printBST(BSTNode* root) {
     }
 
     printBST(root->left);
-    cout << "Car ID: " << root->data.id << ", Marca: " << root->data.marca << endl;
+    cout << "Carro ID: " << root->data.id << ", Marca: " << root->data.marca << "-" << root->data.modelo << endl;
     printBST(root->right);
 }
 
@@ -113,7 +113,7 @@ ET* inicializaEstacoes() {
         
         newET->id = id_ETS++;
         newET->capacidade = rand() % 4 + 2; 
-        newET->marca = marcas[rand() % NUM_MARCAS];
+        newET->marca = marcas[rand() % NUM_MARCAS -1];
         newET->carros = nullptr; 
         newET->repaired_cars = nullptr;
         newET->carros_reparados = 0;
@@ -321,11 +321,12 @@ void verListaDeEspera(const ListaDeEspera* head) {
         cout << currentCar->marca << "-";
         cout << currentCar->modelo << " | ";
         if (currentCar->prioridade == 1) {
-            cout << "Prioritário: " << "Sim" << endl;
+            cout << "Prioritário: " << "Sim" << " | ";
         }
         else {
-            cout << "Prioritário: " << "Nao" << endl;
+            cout << "Prioritário: " << "Nao" << " | ";
         }
+        cout << "Tempo reparação: " << currentCar->tempo_reparacao << endl;
         current = current->next;
     }
 }
@@ -449,7 +450,7 @@ void reparaCarros(ET* head) {
 
 void printRepairedCarsOfET(ET* head) {
     int etId;
-    cout << "Enter the ID of the ET: ";
+    cout << "Introduza o ID da ET: ";
     cin >> etId;
 
     ET* currentET = head;
@@ -457,18 +458,194 @@ void printRepairedCarsOfET(ET* head) {
     while (currentET != nullptr) {
         if (currentET->id == etId) {
             BSTNode* root = currentET->repaired_cars;
-            cout << "Repaired Cars of ET " << etId << ":" << endl;
+            cout << "Carros reparados daa ET " << etId << ":" << endl;
             printBST(root);
             return;
         }
         currentET = currentET->next;
     }
 
-    cout << "ET with ID " << etId << " not found." << endl;
+    cout << "ET com ID " << etId << " não encontrado." << endl;
 }
 
+void atualizaTempoReparacao(ListaDeEspera* lista) {
+    string marca, modelo;
+    int newTempoReparacao;
+
+    cout << "Introduza a marca do carro: ";
+    cin >> marca;
+    cout << "Introduza o modelo do carro: ";
+    cin >> modelo;
+    cout << "Introduza o novo tempo de reparação: ";
+    cin >> newTempoReparacao;
+
+    ListaDeEspera* current = lista;
+    bool carUpdated = false;
+
+    while (current != nullptr) {
+        if (current->data->marca == marca && current->data->modelo == modelo) {
+            current->data->tempo_reparacao = newTempoReparacao;
+            carUpdated = true;
+        }
+        current = current->next;
+    }
+
+    if (carUpdated) {
+        cout << "O tempo de reparação foi atualizado para os seguintes carros:" << endl;
+        current = lista;
+        while (current != nullptr) {
+            if (current->data->marca == marca && current->data->modelo == modelo) {
+                cout << "ID: " << current->data->id << ", Marca: " << current->data->marca
+                    << ", Modelo: " << current->data->modelo << endl;
+            }
+            current = current->next;
+        }
+    }
+    else {
+        cout << "Nenhum carro teve o tempo de reparação atualizado." << endl;
+    }
+}
+
+void adicionarPrioridade(ListaDeEspera* lista) {
+    int id;
+
+    cout << "Introduza o ID do veículo: ";
+    cin >> id;
+
+    ListaDeEspera* current = lista;
+    bool vehicleFound = false;
+
+    while (current != nullptr) {
+        if (current->data->id == id) {
+            vehicleFound = true;
+            if (current->data->prioridade) {
+                cout << "Este veículo já é prioritário." << endl;
+            }
+            else {
+                current->data->prioridade = true;
+                cout << "A prioridade do veículo foi alterada com sucesso." << endl;
+            }
+            break;
+        }
+        current = current->next;
+    }
+
+    if (!vehicleFound) {
+        cout << "Veículo não encontrado." << endl;
+    }
+}
+
+void adicionarET(ET*& listaET) {
+    string mecânico, marca;
+
+    cout << "Introduza o nome do mecânico: ";
+    cin >> mecânico;
+    cout << "Introduza a marca especializada do mecãnico: ";
+    cin >> marca;
+
+    // Cria novo nodo da ET
+    ET* newET = new ET;
+    newET->id = id_ETS++;
+    newET->mecanico = mecânico;
+    newET->marca = marca;
+    newET->carros = nullptr;
+    newET->repaired_cars = nullptr;
+    newET->carros_reparados = 0;
+    newET->capacidade_atual = 0;
+    newET->capacidade = rand() % 4 + 2;
+    newET->faturacao = 0;
+    newET->next = nullptr;
+
+    // Verifica se listaET está vazia
+    if (listaET == nullptr) {
+        listaET = newET; // Define a nova ET como primeiro NODO
+    }
+    else {
+        ET* current = listaET;
+
+        // Traverse to the last ET node
+        while (current->next != nullptr) {
+            current = current->next;
+        }
+
+        current->next = newET; // Adiciona ET ao fim da lista
+    }
+
+    cout << "Nova ET adicionada com sucesso!" << endl;
+
+    marcasET[numETs] = marca;
+    numETs++;
+    for (int i = 0; i < numETs; i++) {
+        cout << marcasET[i] << endl;
+    }
+}
+
+void removerMecanico(ET*& listaET) {
+    string nomeMecanico;
+    cout << "Introduza o nome do mecânico a remover: ";
+    cin >> nomeMecanico;
 
 
+
+    ET* current = listaET;
+
+    // Traverse the ET list to find the mechanic to be removed
+    while (current != nullptr && current->mecanico != nomeMecanico) {
+        current = current->next;
+    }
+
+    if (current == nullptr) {
+        cout << "Mecânico não encontrado na lista de ETs." << endl;
+        return;
+    }
+
+    // Move all cars in the mechanic's carros array to the repaired cars BST
+    carro* carros = current->carros;
+    while (carros != nullptr) {
+        BSTNode* newRepairedCar = new BSTNode;
+        newRepairedCar->data = *carros;
+        newRepairedCar->left = nullptr;
+        newRepairedCar->right = current->repaired_cars;
+        current->repaired_cars = newRepairedCar;
+
+        carros = carros->next;
+    }
+
+    // Remove the cars from the carros array
+    current->carros = nullptr;
+
+    // Replace the mechanic with a new one
+    string novaMecanico, novaMarca;
+    cout << "Introduza o nome do novo mecânico: ";
+    cin >> novaMecanico;
+
+    int contadorMecanicoUnico = 0;
+    ET* verificarMarca = listaET;
+    while (verificarMarca != nullptr) {
+        if (verificarMarca->marca == current->marca) {
+            contadorMecanicoUnico++;
+        }
+        verificarMarca = verificarMarca->next;
+    }
+
+    string* novaMarcas = new string[NUM_MARCAS - 1];
+    int index = 0;
+    if (contadorMecanicoUnico == 1) {
+        for (int m = 0; m < NUM_MARCAS; m++) {
+            if (marcas[m] != current->marca) {
+                novaMarcas[index++] = marcas[m];
+            }
+        }
+        current->capacidade_atual = 0;
+        current->mecanico = novaMecanico;
+        current->marca = novaMarcas[rand() % NUM_MARCAS - 1];
+        marcasET[current->id] = current->marca;
+
+        cout << "Mecânico removido com sucesso." << endl;
+        cout << "Novo mecânico adicionado com sucesso." << endl;
+
+    }
+}
 
 
 
@@ -480,12 +657,12 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead){
     do {
         cout << endl;
         cout << "***** Bem Vindo Gestor ***** \n";
-        cout << "(1).Reparação Manual \n";
-        cout << "(2).Atualizar tempo de reparação \n";
-        cout << "(3).Adicionar Prioridade\n";
-        cout << "(4).Remover Mecânico\n";
-        cout << "(5).Gravar Oficina \n";
-        cout << "(6).Carregar Oficina \n";
+        cout << "(1).Atualizar tempo de reparação \n";
+        cout << "(2).Adicionar Prioridade \n";
+        cout << "(3).Remover Mecânico\n";
+        cout << "(4).Gravar Oficina \n";
+        cout << "(5).Carregar Oficina \n";
+        cout << "(6).Adicionar ET \n";
         cout << "(7).Imprimir carros reparados \n";
         cout << "(9). Voltar Atrás \n";
         cout << "(0).Sair" << endl;
@@ -494,13 +671,13 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead){
         switch (escolha)
         {
         case '1':
-            
+            atualizaTempoReparacao(head);
             break;
         case '2':
-           
+            adicionarPrioridade(head);
             break;
         case '3':
-            
+            removerMecanico(ethead);
             break;
         case '4':
             
@@ -509,7 +686,7 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead){
             
             break;
         case '6':
-           
+            adicionarET(ethead);
             break;
         case '7':
             printRepairedCarsOfET(ethead);
