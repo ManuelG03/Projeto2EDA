@@ -41,6 +41,6 @@ int contarModelos() {
 }
 
 int contarETS() {
-    std::srand(std::time(0));
+    srand(time(0));
     return rand() % 6 + 3;
 }

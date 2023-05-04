@@ -26,13 +26,20 @@ struct ET {
     string marca;
     carro* carros;
     BSTNode* repaired_cars;
-    int carros_reparados;
+    int carros_reparados = 0;
     int capacidade_atual;
     int faturacao;
     ET* next;
 };
 
 struct ListaDeEspera {
-    carro* data;
-    ListaDeEspera* next;
+    carro data;
+    ListaDeEspera* next = nullptr;
+};
+
+struct caminhosFicheiros {
+    string caminhoCarros;
+    string caminhoListaDeEspera;
+    string caminhoEstacoes;
+    string caminhoCarrosReparados;
 };
