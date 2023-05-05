@@ -253,7 +253,7 @@ void criaCarrosListaDeEspera(ListaDeEspera*& head, int numCarsToAdd) {
         else {
             newCarro->data.prioridade = 0;
         }
-        newCarro->data.tempo_reparacao = 4;
+        newCarro->data.tempo_reparacao = 2 + (rand() % 4);
         newCarro->data.dias_ET = 0;
         newCarro->data.custo_reparacao = rand() % 120;
  
