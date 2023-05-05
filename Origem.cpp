@@ -2,9 +2,9 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "constantes.h";
 #include <locale.h>
 #include "structs.h"
+#include "constantes.h"
 #include "ficheiros.h"
 
 using namespace std;
@@ -13,25 +13,25 @@ string* marcas = new string[NUM_MARCAS];
 string* modelos = new string[NUM_MODELOS];
 string* marcasET = new string[20];
 
-BSTNode* insert(BSTNode* root, carro* data) {
+BSTNode* insert(BSTNode* root, umCarro data) {
     if (root == nullptr) {
         BSTNode* newNode = new BSTNode;
-        newNode->data = *data;
+        newNode->data = data;
         newNode->left = nullptr;
         newNode->right = nullptr;
         return newNode;
     }
 
     // Compare the "marca" values to determine the placement in the BST
-    if (data->modelo < root->data.modelo)
+    if (data.modelo < root->data.modelo)
         root->left = insert(root->left, data);
-    else if (data->modelo > root->data.modelo)
+    else if (data.modelo > root->data.modelo)
         root->right = insert(root->right, data);
     else {
         // If the "marca" values are equal, decide based on car ID
-        if (data->id < root->data.id)
+        if (data.id < root->data.id)
             root->left = insert(root->left, data);
-        else if (data->id > root->data.id)
+        else if (data.id > root->data.id)
             root->right = insert(root->right, data);
     }
 
@@ -68,9 +68,8 @@ ET* inicializaEstacoes() {
     ET* current = nullptr; 
 
     for (int i = 0; i < numETs; i++) {
-        ET* newET = new ET();
+        ET* newET = new ET;
 
-        
         newET->id = id_ETS++;
         newET->capacidade = rand() % 4 + 2; 
         newET->marca = marcas[rand() % NUM_MARCAS -1];
@@ -160,9 +159,9 @@ void organizaListaDeEspera(ListaDeEspera*& head) {
 
 
 
-void adicionaListaDeEspera(ListaDeEspera*& head, carro newCarro) {
+void adicionaListaDeEspera(ListaDeEspera*& head, carro* newCarro) {
     ListaDeEspera* newNode = new ListaDeEspera();
-    newNode->data = newCarro;
+    newNode->data = newCarro->data;
     newNode->next = nullptr;
 
     if (head == nullptr) {
@@ -185,7 +184,7 @@ void insertCarsIntoETs(ListaDeEspera*& esperaHead, ET* etHead) {
     ListaDeEspera* esperaPrevious = nullptr;
 
     while (esperaCurrent != nullptr && totalCarsAdded < 8) {
-        carro currentCar = esperaCurrent->data;
+        umCarro currentCar = esperaCurrent->data;
 
         ET* currentET = etHead;
         ET* selectedET = nullptr; 
@@ -202,7 +201,7 @@ void insertCarsIntoETs(ListaDeEspera*& esperaHead, ET* etHead) {
         if (selectedET != nullptr) {
            
             carro* newCar = new carro();
-            *newCar = currentCar;
+            newCar->data = currentCar;
 
             
             if (selectedET->carros == nullptr) {
@@ -240,30 +239,26 @@ void insertCarsIntoETs(ListaDeEspera*& esperaHead, ET* etHead) {
     }
 }
 
-
-
-
 void criaCarrosListaDeEspera(ListaDeEspera*& head, int numCarsToAdd) {
     for (int i = 0; i < numCarsToAdd; i++) {
-        carro* newCarro = new carro(); 
-
+        carro* newCarro = new carro();
         
-        newCarro->id = id_Carros++;
-        newCarro->marca = marcasET[rand() % numETs];
-        newCarro->modelo = modelos[rand() % NUM_MODELOS];
+        newCarro->data.id = id_Carros++;
+        newCarro->data.marca = marcasET[rand() % numETs];
+        newCarro->data.modelo = modelos[rand() % NUM_MODELOS];
         int probabilidade = rand() % 100;
-        if (probabilidade < 25) {
-            newCarro->prioridade = 1;
+        if (probabilidade < 5) {
+            newCarro->data.prioridade = 1;
         }
         else {
-            newCarro->prioridade = 0;
+            newCarro->data.prioridade = 0;
         }
-        newCarro->tempo_reparacao = 4;
-        newCarro->dias_ET = 0;
-        newCarro->custo_reparacao = rand() % 120;
+        newCarro->data.tempo_reparacao = 4;
+        newCarro->data.dias_ET = 0;
+        newCarro->data.custo_reparacao = rand() % 120;
  
 
-        adicionaListaDeEspera(head, *newCarro);
+        adicionaListaDeEspera(head, newCarro);
     }
     numCarrosCriados += 10;
     organizaListaDeEspera(head);
@@ -273,12 +268,12 @@ void verListaDeEspera(const ListaDeEspera* head) {
     const ListaDeEspera* current = head;
     cout << "LISTA DE ESPERA: " << endl;
     while (current != nullptr) {
-        carro currentCar = current->data;
+        umCarro currentCar = current->data;
 
         cout << "Carro: ID: " << currentCar.id << " | ";
         cout << currentCar.marca << "-";
         cout << currentCar.modelo << " | ";
-        if (currentCar.prioridade == 1) {
+        if (currentCar.prioridade) {
             cout << "Prioritário: " << "Sim" << " | ";
         }
         else {
@@ -300,25 +295,22 @@ void master(ET* etHead, ListaDeEspera* head) {
         cout << "Marca: " << currentET->marca << " | ";
         cout << "Total Faturacão: " << currentET->faturacao << " $" << endl;
 
-        //APAGAR DEPOIS
-        cout << endl << endl << "Carros reparados: " << currentET->carros_reparados << endl << endl;
-
         carro* currentCar = currentET->carros;
         if (currentCar == nullptr) {
             cout << "ET sem carros" << endl;
         }
         while (currentCar != nullptr) {
-            cout << "Carro: ID: " << currentCar->id << " | ";
-            cout << currentCar->marca << "-";
-            cout << currentCar->modelo << " | ";
-            if (currentCar->prioridade == 1) {
+            cout << "Carro: ID: " << currentCar->data.id << " | ";
+            cout << currentCar->data.marca << "-";
+            cout << currentCar->data.modelo << " | ";
+            if (currentCar->data.prioridade == 1) {
                 cout << "Prioritário: " << "Sim" << " | ";
             }
             else {
                 cout << "Prioritário: " << "Nao" << " | ";
             }
-            cout << "Tempo reparação: " << currentCar->tempo_reparacao << " | ";
-            cout << "Dias na ET: " << currentCar->dias_ET << endl;
+            cout << "Tempo reparação: " << currentCar->data.tempo_reparacao << " | ";
+            cout << "Dias na ET: " << currentCar->data.dias_ET << endl;
             
 
             currentCar = currentCar->next;
@@ -344,7 +336,7 @@ void incrementaDiasET(ET* head) {
 
         while (currentCar != nullptr) {
             // Increment dias_ET for the current car
-            currentCar->dias_ET = currentCar->dias_ET + 1;
+            currentCar->data.dias_ET = currentCar->data.dias_ET + 1;
 
             // Move to the next car
             currentCar = currentCar->next;
@@ -366,7 +358,7 @@ void reparaCarros(ET* head) {
         while (currentCar != nullptr) {
             carro* nextCar = currentCar->next;
 
-            if (currentCar->tempo_reparacao == currentCar->dias_ET || (rand() % 100) < 15) {
+            if (currentCar->data.tempo_reparacao == currentCar->data.dias_ET || (rand() % 100) < 15) {
                 // Carro precisa ser reparado ou foi aleatoriamente selecionado
 
                 // Remove carro da ET
@@ -377,22 +369,21 @@ void reparaCarros(ET* head) {
                     previousCar->next = nextCar;
                 }
 
-                currentET->faturacao += currentCar->custo_reparacao;
+                currentET->faturacao += currentCar->data.custo_reparacao;
 
                 // Adiciona carro ao BST de carros reparados na ET
                 currentCar->next = nullptr;
-                currentET->repaired_cars = insert(currentET->repaired_cars, currentCar);
+                currentET->repaired_cars = insert(currentET->repaired_cars, currentCar->data);
                 currentET->carros_reparados++;
-
                 currentET->capacidade_atual--;
 
                 // Display
-                if (currentCar->tempo_reparacao == currentCar->dias_ET) {
-                    cout << "O carro com ID " << currentCar->id << " foi removido da ET " << currentET->id
+                if (currentCar->data.tempo_reparacao == currentCar->data.dias_ET) {
+                    cout << "O carro com ID " << currentCar->data.id << " foi removido da ET " << currentET->id
                         << " - Ultrapassou tempo máximo de reparação." << endl;
                 }
                 else {
-                    cout << "O carro com ID " << currentCar->id << " foi reparado na ET " << currentET->id << "." << endl;
+                    cout << "O carro com ID " << currentCar->data.id << " foi reparado na ET " << currentET->id << "." << endl;
                 }
             }
             else {
@@ -565,7 +556,7 @@ void removerMecanico(ET*& listaET) {
     carro* carros = current->carros;
     while (carros != nullptr) {
         BSTNode* newRepairedCar = new BSTNode;
-        newRepairedCar->data = *carros;
+        newRepairedCar->data = carros->data;
         newRepairedCar->left = nullptr;
         newRepairedCar->right = current->repaired_cars;
         current->repaired_cars = newRepairedCar;
@@ -609,10 +600,9 @@ void removerMecanico(ET*& listaET) {
     }
 }
 
+void SimulaDia(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho);
 
-
-void SimulaDia(ListaDeEspera* head, ET* ethead);
-void PainelDeGestao(ListaDeEspera* head, ET* ethead){
+void PainelDeGestao(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho){
     bool sair = false;
     char escolha = ' ';
 
@@ -642,13 +632,15 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead){
             removerMecanico(ethead);
             break;
         case '4':
-            gravarFicheiros(head, ethead, numETs);
+            gravarFicheiros(head, ethead, numETs, caminho, id_Carros);
             cout << "A gravação nos ficheiros foi feita com sucesso." << endl;
             break;
         case '5':
-            /*carregarFicheiros(head, ethead);*/
-            head = carregarListaDeEspera(head);
-            ethead = carregarEstacoes(ethead);
+            id_Carros = carregarIdCarros(caminho);
+            head = carregarListaDeEspera(head, caminho);
+            ethead = carregarEstacoes(ethead, caminho);
+            id_ETS = carregarIdEstacoes(caminho);
+            cout << "O carregamento dos ficheiros foi feito com sucesso." << endl;
             break;
         case '6':
             adicionarET(ethead);
@@ -657,7 +649,7 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead){
             printRepairedCarsOfET(ethead);
             break;
         case '9':
-            SimulaDia(head,ethead);
+            SimulaDia(head,ethead, caminho);
             break;
         case '0': cout << "Selecionou a opção sair! " << endl;
             exit(0);
@@ -669,7 +661,7 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead){
     cin.ignore();
 }
 
-void SimulaDia(ListaDeEspera* head, ET* ethead) {
+void SimulaDia(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho) {
     char opcao = ' ';
     bool sair = false;
 
@@ -692,7 +684,7 @@ void SimulaDia(ListaDeEspera* head, ET* ethead) {
             break;
         case 'g':
         case 'G':
-            PainelDeGestao(head,ethead);
+            PainelDeGestao(head,ethead, caminho);
             break;
         case '0':
             exit(0);
@@ -704,7 +696,7 @@ void SimulaDia(ListaDeEspera* head, ET* ethead) {
         }
     } while (!sair);
 }
-int main() {
+int main(int argc, char* argv[]) {
     {
         setlocale(LC_ALL, "Portuguese");
     }
@@ -720,10 +712,21 @@ int main() {
 
     ListaDeEspera* ListaDeEspera = nullptr;
     ET* ListaETs = inicializaEstacoes();
-
-    SimulaDia(ListaDeEspera, ListaETs);
     
-   
+    caminhosFicheiros* caminhos = new caminhosFicheiros;
+
+    if ((argv[1] && argv[2] && argv[3]) == NULL) {
+        caminhos->caminhoListaDeEspera = "listaDeEspera.txt";
+        caminhos->caminhoEstacoes = "estacoes.txt";
+        caminhos->caminhoCarrosReparados = "carrosReparados.txt";
+    }
+    else {
+        caminhos->caminhoListaDeEspera = argv[1];
+        caminhos->caminhoEstacoes = argv[2];
+        caminhos->caminhoCarrosReparados = argv[3];
+    }
+
+    SimulaDia(ListaDeEspera, ListaETs, caminhos);
    
     return 0;
 }

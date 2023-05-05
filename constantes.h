@@ -1,6 +1,5 @@
 #pragma once
 
-
 int contarMarcas();
 const int NUM_MARCAS = contarMarcas();
 

@@ -2,44 +2,47 @@
 
 using namespace std;
 
+struct umCarro {
+    int id = 0;
+    string marca = "";
+    string modelo = "";
+    int tempo_reparacao = 0;
+    int custo_reparacao = 0;
+    int dias_ET = 0;
+    bool prioridade = "false";
+};
+
 struct carro {
-    int id;
-    string marca;
-    string modelo;
-    int tempo_reparacao;
-    int custo_reparacao;
-    int dias_ET;
-    bool prioridade;
-    carro* next; // Apontador para o prox. carro
+    umCarro data;
+    carro* next = nullptr;
 };
 
 struct BSTNode {
-    carro data;
-    BSTNode* left;
-    BSTNode* right;
+    umCarro data;
+    BSTNode* left = nullptr;
+    BSTNode* right = nullptr;
 };
 
 struct ET {
-    int id;
-    int capacidade;
-    string mecanico;
-    string marca;
-    carro* carros;
-    BSTNode* repaired_cars;
+    int id = 0;
+    int capacidade = 0;
+    string mecanico = "";
+    string marca = "";
+    carro* carros = new carro;
+    BSTNode* repaired_cars = nullptr;
     int carros_reparados = 0;
-    int capacidade_atual;
-    int faturacao;
-    ET* next;
+    int capacidade_atual = 0;
+    int faturacao = 0;
+    ET* next = nullptr;
 };
 
 struct ListaDeEspera {
-    carro data;
+    umCarro data;
     ListaDeEspera* next = nullptr;
 };
 
 struct caminhosFicheiros {
-    string caminhoCarros;
-    string caminhoListaDeEspera;
-    string caminhoEstacoes;
-    string caminhoCarrosReparados;
+    string caminhoListaDeEspera = "";
+    string caminhoEstacoes = "";
+    string caminhoCarrosReparados = "";
 };

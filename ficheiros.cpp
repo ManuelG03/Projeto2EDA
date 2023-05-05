@@ -2,12 +2,27 @@
 #include <fstream>
 #include <string>
 #include "structs.h"
+#include "Origem.h"
 
 using namespace std;
 
-void gravarListaDeEspera(ListaDeEspera* head) {
+int carregarIdCarros(caminhosFicheiros* caminho) {
     fstream file;
-    file.open("listaDeEspera.txt");
+    file.open(caminho->caminhoListaDeEspera);
+    string linha;
+    int id_Carros;
+
+    getline(file, linha);
+    id_Carros = stoi(linha);
+
+    file.close();
+
+    return id_Carros;
+}
+
+void gravarListaDeEspera(ListaDeEspera* head, caminhosFicheiros* caminho, int id_Carros) {
+    ofstream file;
+    file.open(caminho->caminhoListaDeEspera);
 
     ListaDeEspera* contarCarro = head;
     int numListaDeEspera = 0;
@@ -17,6 +32,8 @@ void gravarListaDeEspera(ListaDeEspera* head) {
 
         contarCarro = contarCarro->next;
     }
+
+    file << id_Carros << endl;
 
     file << numListaDeEspera << endl;
 
@@ -41,9 +58,9 @@ void gravarListaDeEspera(ListaDeEspera* head) {
     file.close();
 }
 
-ListaDeEspera* carregarListaDeEspera(ListaDeEspera* head) {
+ListaDeEspera* carregarListaDeEspera(ListaDeEspera* head, caminhosFicheiros* caminho) {
     fstream file;
-    file.open("listaDeEspera.txt");
+    file.open(caminho->caminhoListaDeEspera);
 
     string linha;
     int numListaDeEspera = 0;
@@ -52,11 +69,13 @@ ListaDeEspera* carregarListaDeEspera(ListaDeEspera* head) {
     head = NULL;
 
     getline(file, linha);
+
+    getline(file, linha);
     numListaDeEspera = stoi(linha);
 
     for (int i = 0; i < numListaDeEspera; i++) {
         ListaDeEspera* listadeespera = new ListaDeEspera;
-        carro carroEmEspera;
+        umCarro carroEmEspera;
 
         getline(file, linha);
         carroEmEspera.id = stoi(linha);
@@ -97,7 +116,7 @@ ListaDeEspera* carregarListaDeEspera(ListaDeEspera* head) {
     return head;
 } 
 
-void gravarCarrosReparados(BSTNode* carrosReparados, fstream& fileReparados) {
+void gravarCarrosReparados(BSTNode* carrosReparados, ofstream& fileReparados) {
     BSTNode* carroReparado = carrosReparados;
 
     if (carrosReparados == NULL) {
@@ -123,12 +142,26 @@ void gravarCarrosReparados(BSTNode* carrosReparados, fstream& fileReparados) {
 
 }
 
-void gravarEstacoes(ET* ethead, int numETs) {
-    fstream fileReparados;
-    fileReparados.open("carrosReparados.txt");
+int carregarIdEstacoes(caminhosFicheiros* caminho) {
+    fstream file;
+    file.open(caminho->caminhoEstacoes);
+    string linha;
+    int id_ETS;
 
-    fstream fileEstacoes;
-    fileEstacoes.open("estacoes.txt");
+    getline(file, linha);
+    id_ETS = stoi(linha);
+
+    file.close();
+
+    return id_ETS;
+}
+
+void gravarEstacoes(ET* ethead, int numETs, caminhosFicheiros* caminho) {
+    ofstream fileReparados;
+    fileReparados.open(caminho->caminhoCarrosReparados);
+
+    ofstream fileEstacoes;
+    fileEstacoes.open(caminho->caminhoEstacoes);
 
     fileEstacoes << numETs << endl;
 
@@ -145,13 +178,13 @@ void gravarEstacoes(ET* ethead, int numETs) {
 
         carro* carroNaET = estacao->carros;
         while (carroNaET != nullptr) {
-            fileEstacoes << carroNaET->id << endl;
-            fileEstacoes << carroNaET->marca << endl;
-            fileEstacoes << carroNaET->modelo << endl;
-            fileEstacoes << carroNaET->tempo_reparacao << endl;
-            fileEstacoes << carroNaET->custo_reparacao << endl;
-            fileEstacoes << carroNaET->dias_ET << endl;
-            if (carroNaET->prioridade) {
+            fileEstacoes << carroNaET->data.id << endl;
+            fileEstacoes << carroNaET->data.marca << endl;
+            fileEstacoes << carroNaET->data.modelo << endl;
+            fileEstacoes << carroNaET->data.tempo_reparacao << endl;
+            fileEstacoes << carroNaET->data.custo_reparacao << endl;
+            fileEstacoes << carroNaET->data.dias_ET << endl;
+            if (carroNaET->data.prioridade) {
                 fileEstacoes << "Sim" << endl;
             }
             else {
@@ -170,12 +203,12 @@ void gravarEstacoes(ET* ethead, int numETs) {
     fileReparados.close();
 }
 
-ET* carregarEstacoes(ET* ethead) {
+ET* carregarEstacoes(ET* ethead, caminhosFicheiros* caminho) {
     fstream fileEstacoes;
-    fileEstacoes.open("estacoes.txt");
+    fileEstacoes.open(caminho->caminhoEstacoes);
 
     fstream fileReparados;
-    fileReparados.open("carrosReparados.txt");
+    fileReparados.open(caminho->caminhoCarrosReparados);
 
     string linha;
     int numETs = 0;
@@ -185,7 +218,6 @@ ET* carregarEstacoes(ET* ethead) {
 
     getline(fileEstacoes, linha);
     numETs = stoi(linha);
-    cout << "numETs: " << numETs << endl;
 
     for (int i = 0; i < numETs; i++) {
 
@@ -208,37 +240,46 @@ ET* carregarEstacoes(ET* ethead) {
             carro* carroNaET = new carro;
 
             getline(fileEstacoes, linha);
-            carroNaET->id = stoi(linha);
-            getline(fileEstacoes, carroNaET->marca);
-            getline(fileEstacoes, carroNaET->modelo);
+            carroNaET->data.id = stoi(linha);
+            getline(fileEstacoes, carroNaET->data.marca);
+            getline(fileEstacoes, carroNaET->data.modelo);
             getline(fileEstacoes, linha);
-            carroNaET->tempo_reparacao = stoi(linha);
+            carroNaET->data.tempo_reparacao = stoi(linha);
             getline(fileEstacoes, linha);
-            carroNaET->custo_reparacao = stoi(linha);
+            carroNaET->data.custo_reparacao = stoi(linha);
             getline(fileEstacoes, linha);
-            carroNaET->dias_ET = stoi(linha);
+            carroNaET->data.dias_ET = stoi(linha);
             getline(fileEstacoes, linha);
             if (linha == "Sim") {
-                carroNaET->prioridade = true;
+                carroNaET->data.prioridade = true;
             }
             else if (linha == "Nao") {
-                carroNaET->prioridade = false;
+                carroNaET->data.prioridade = false;
+            }
+
+            if (j == 0) {
+                estacoes->carros = carroNaET;
+            }
+            else {
+                carro* iterador = estacoes->carros;
+
+                while (iterador->next != NULL) {
+                    iterador = iterador->next;
+                }
+
+                iterador->next = carroNaET;
             }
 
             carroNaET = carroNaET->next;
         }
-
-        cout << "Estacao: " << estacoes->id << "--->>> Carros Reparados: " << estacoes->carros_reparados << endl;
 
         for (int k = 0; k < estacoes->carros_reparados; k++) {
             BSTNode* carroReparado = new BSTNode;
 
             getline(fileReparados, linha);
             carroReparado->data.id = stoi(linha);
-            cout << carroReparado->data.id << endl;
             getline(fileReparados, carroReparado->data.marca);
             getline(fileReparados, carroReparado->data.modelo);
-            cout << carroReparado->data.marca << "-" << carroReparado->data.modelo << endl;
             getline(fileReparados, linha);
             carroReparado->data.tempo_reparacao = stoi(linha);
             getline(fileReparados, linha);
@@ -252,8 +293,20 @@ ET* carregarEstacoes(ET* ethead) {
             else if (linha == "Nao") {
                 carroReparado->data.prioridade = false;
             }
+            estacoes->repaired_cars = insert(estacoes->repaired_cars, carroReparado->data);
+        }
 
-            carroReparado = carroReparado->right;
+        if (i == 0) {
+            ethead = estacoes;
+        }
+        else {
+            ET* iterador = ethead;
+
+            while (iterador->next != NULL) {
+                iterador = iterador->next;
+            }
+
+            iterador->next = estacoes;
         }
 
         estacoes = estacoes->next;
@@ -265,12 +318,7 @@ ET* carregarEstacoes(ET* ethead) {
     return ethead;
 }
 
-void gravarFicheiros(ListaDeEspera* head, ET* ethead, int numETs) {
-    gravarListaDeEspera(head);
-    gravarEstacoes(ethead, numETs);
-}
-
-void carregarFicheiros(ListaDeEspera* head, ET* ethead) {
-    carregarListaDeEspera(head);
-    carregarEstacoes(ethead);
+void gravarFicheiros(ListaDeEspera* head, ET* ethead, int numETs, caminhosFicheiros* caminho, int id_Carros) {
+    gravarListaDeEspera(head, caminho, id_Carros);
+    gravarEstacoes(ethead, numETs, caminho);
 }

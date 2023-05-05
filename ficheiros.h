@@ -1,10 +1,12 @@
 #pragma once
 #include "structs.h"
 
-void gravarFicheiros(ListaDeEspera* head, ET* ethead, int numETs);
+void gravarFicheiros(ListaDeEspera* head, ET* ethead, int numETs, caminhosFicheiros* caminho, int id_Carros);
 
-void carregarFicheiros(ListaDeEspera* head, ET* ethead);
+ET* carregarEstacoes(ET* ethead, caminhosFicheiros* caminho);
 
-ET* carregarEstacoes(ET* ethead);
+ListaDeEspera* carregarListaDeEspera(ListaDeEspera* head, caminhosFicheiros* caminho);
 
-ListaDeEspera* carregarListaDeEspera(ListaDeEspera* head);
+int carregarIdCarros(caminhosFicheiros* caminho);
+
+int carregarIdEstacoes(caminhosFicheiros* caminho);
