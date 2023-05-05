@@ -153,7 +153,7 @@ int carregarIdEstacoes(caminhosFicheiros* caminho) {
 
     file.close();
 
-    return id_ETS;
+    return id_ETS + 1;
 }
 
 void gravarEstacoes(ET* ethead, int numETs, caminhosFicheiros* caminho) {

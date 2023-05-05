@@ -72,13 +72,13 @@ ET* inicializaEstacoes() {
 
         newET->id = id_ETS++;
         newET->capacidade = rand() % 4 + 2; 
-        newET->marca = marcas[rand() % NUM_MARCAS -1];
+        newET->marca = marcas[rand() % NUM_MARCAS - 1];
         newET->carros = nullptr; 
         newET->repaired_cars = nullptr;
         newET->carros_reparados = 0;
         newET->capacidade_atual = 0;
         newET->faturacao = 0;
-        newET->next = nullptr; 
+        newET->next = nullptr;
 
         marcasET[index++] = newET->marca;
         
