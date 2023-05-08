@@ -48,7 +48,7 @@ void printBST(BSTNode* root) {
     printBST(root->right);
 }
 
-ET* inicializaEstacoes() {
+ET* inicializaEstacoes() { //SARA
     int index = 0;
     string file = "marcas.txt";                                 
     ifstream fileMarcas(file);
@@ -421,7 +421,7 @@ void printRepairedCarsOfET(ET* head) {
     cout << "ET com ID " << etId << " não encontrado." << endl;
 }
 
-void atualizaTempoReparacao(ListaDeEspera* lista) {
+void atualizaTempoReparacao(ListaDeEspera* lista) { //SARA
     string marca, modelo;
     int newTempoReparacao;
 
@@ -459,7 +459,7 @@ void atualizaTempoReparacao(ListaDeEspera* lista) {
     }
 }
 
-void adicionarPrioridade(ListaDeEspera* lista) {
+void adicionarPrioridade(ListaDeEspera* lista) { //SARA
     int id;
 
     cout << "Introduza o ID do veículo: ";
