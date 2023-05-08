@@ -62,10 +62,10 @@ ET* inicializaEstacoes() { //SARA
         }
     }
     
-    srand(time(0)); 
+    srand(time(0));
     
-    ET* head = nullptr; 
-    ET* current = nullptr; 
+    ET* head = nullptr;
+    ET* current = nullptr;
 
     for (int i = 0; i < numETs; i++) {
         ET* newET = new ET;
@@ -157,8 +157,6 @@ void organizaListaDeEspera(ListaDeEspera*& head) {
     }
 }
 
-
-
 void adicionaListaDeEspera(ListaDeEspera*& head, carro* newCarro) {
     ListaDeEspera* newNode = new ListaDeEspera();
     newNode->data = newCarro->data;
@@ -244,7 +242,13 @@ void criaCarrosListaDeEspera(ListaDeEspera*& head, int numCarsToAdd) {
         carro* newCarro = new carro();
         
         newCarro->data.id = id_Carros++;
+        for (int j = 0; j < numETs; j++) {
+            cout << marcasET[j] << endl;
+        }
         newCarro->data.marca = marcasET[rand() % numETs];
+        for (int k = 0; k < numETs; k++) {
+            cout << marcasET[k] << endl;
+        }
         newCarro->data.modelo = modelos[rand() % NUM_MODELOS];
         int probabilidade = rand() % 100;
         if (probabilidade < 5) {
@@ -375,7 +379,9 @@ void reparaCarros(ET* head) {
                 currentCar->next = nullptr;
                 currentET->repaired_cars = insert(currentET->repaired_cars, currentCar->data);
                 currentET->carros_reparados++;
-                currentET->capacidade_atual--;
+                if (currentET->capacidade_atual != 0) {
+                    currentET->capacidade_atual--;
+                }
 
                 // Display
                 if (currentCar->data.tempo_reparacao == currentCar->data.dias_ET) {
@@ -635,9 +641,11 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho)
             break;
         case '5':
             id_Carros = carregarIdCarros(caminho);
+            id_ETS = carregarIdEstacoes(caminho);
+            marcasET = carregarMarcasET(caminho);
+            numETs = carregarNumETs(caminho);
             head = carregarListaDeEspera(head, caminho);
             ethead = carregarEstacoes(ethead, caminho);
-            id_ETS = carregarIdEstacoes(caminho);
             cout << "O carregamento dos ficheiros foi feito com sucesso." << endl;
             break;
         case '6':
@@ -694,10 +702,10 @@ void SimulaDia(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho) {
         }
     } while (!sair);
 }
+
 int main(int argc, char* argv[]) {
-    {
-        setlocale(LC_ALL, "Portuguese");
-    }
+    locale::global(locale(""));
+
     string file = "modelos.txt";
     ifstream fileMarcas(file);
 

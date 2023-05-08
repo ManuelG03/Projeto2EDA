@@ -145,6 +145,7 @@ void gravarCarrosReparados(BSTNode* carrosReparados, ofstream& fileReparados) {
 int carregarIdEstacoes(caminhosFicheiros* caminho) {
     fstream file;
     file.open(caminho->caminhoEstacoes);
+
     string linha;
     int id_ETS;
 
@@ -316,6 +317,59 @@ ET* carregarEstacoes(ET* ethead, caminhosFicheiros* caminho) {
     fileEstacoes.close();
 
     return ethead;
+}
+
+string* carregarMarcasET(caminhosFicheiros* caminho) {
+    fstream fileEstacoes;
+    fileEstacoes.open(caminho->caminhoEstacoes);
+
+    int numETs = 0;
+    int capacidade_atual = 0;
+    string linha;
+
+    getline(fileEstacoes, linha);
+    numETs = stoi(linha);
+
+    string* marcasET = new string[numETs];
+
+    for (int i = 0; i < numETs; i++) {
+        getline(fileEstacoes, linha);
+        getline(fileEstacoes, linha);
+        getline(fileEstacoes, linha);
+        getline(fileEstacoes, marcasET[i]);
+        getline(fileEstacoes, linha);
+        getline(fileEstacoes, linha);
+        capacidade_atual = stoi(linha);
+        getline(fileEstacoes, linha);
+
+        for (int j = 0; j < capacidade_atual; j++) {
+            getline(fileEstacoes, linha);
+            getline(fileEstacoes, linha);
+            getline(fileEstacoes, linha);
+            getline(fileEstacoes, linha);
+            getline(fileEstacoes, linha);
+            getline(fileEstacoes, linha);
+            getline(fileEstacoes, linha);
+        }
+    }
+
+    fileEstacoes.close();
+
+    return marcasET;
+}
+
+int carregarNumETs(caminhosFicheiros* caminho) {
+    fstream fileEstacoes;
+    fileEstacoes.open(caminho->caminhoEstacoes);
+
+    string linha;
+
+    getline(fileEstacoes, linha);
+    int numETs = stoi(linha);
+
+    fileEstacoes.close();
+
+    return numETs;
 }
 
 void gravarFicheiros(ListaDeEspera* head, ET* ethead, int numETs, caminhosFicheiros* caminho, int id_Carros) {

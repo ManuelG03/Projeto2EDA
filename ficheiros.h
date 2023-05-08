@@ -10,3 +10,7 @@ ListaDeEspera* carregarListaDeEspera(ListaDeEspera* head, caminhosFicheiros* cam
 int carregarIdCarros(caminhosFicheiros* caminho);
 
 int carregarIdEstacoes(caminhosFicheiros* caminho);
+
+string* carregarMarcasET( caminhosFicheiros* caminho);
+
+int carregarNumETs(caminhosFicheiros* caminho);
