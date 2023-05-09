@@ -330,7 +330,7 @@ string* carregarMarcasET(caminhosFicheiros* caminho) {
     getline(fileEstacoes, linha);
     numETs = stoi(linha);
 
-    string* marcasET = new string[numETs];
+    string* marcasET = new string[20];
 
     for (int i = 0; i < numETs; i++) {
         getline(fileEstacoes, linha);

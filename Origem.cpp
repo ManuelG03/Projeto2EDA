@@ -242,13 +242,7 @@ void criaCarrosListaDeEspera(ListaDeEspera*& head, int numCarsToAdd) {
         carro* newCarro = new carro();
         
         newCarro->data.id = id_Carros++;
-        for (int j = 0; j < numETs; j++) {
-            cout << marcasET[j] << endl;
-        }
         newCarro->data.marca = marcasET[rand() % numETs];
-        for (int k = 0; k < numETs; k++) {
-            cout << marcasET[k] << endl;
-        }
         newCarro->data.modelo = modelos[rand() % NUM_MODELOS];
         int probabilidade = rand() % 100;
         if (probabilidade < 5) {
@@ -499,7 +493,7 @@ void adicionarET(ET*& listaET) {
 
     cout << "Introduza o nome do mecânico: ";
     cin >> mecânico;
-    cout << "Introduza a marca especializada do mecânico: ";
+    cout << "Introduza a marca especializada do mecãnico: ";
     cin >> marca;
 
     // Cria novo nodo da ET
@@ -534,15 +528,15 @@ void adicionarET(ET*& listaET) {
 
     marcasET[numETs] = marca;
     numETs++;
-    
+    for (int i = 0; i < numETs; i++) {
+        cout << marcasET[i] << endl;
+    }
 }
 
 void removerMecanico(ET*& listaET) {
     string nomeMecanico;
     cout << "Introduza o nome do mecânico a remover: ";
     cin >> nomeMecanico;
-
-
 
     ET* current = listaET;
 
