@@ -9,26 +9,26 @@
 
 using namespace std;
 
-string* marcas = new string[NUM_MARCAS];
-string* modelos = new string[NUM_MODELOS];
-string* marcasET = new string[20];
+string* marcas = new string[NUM_MARCAS]; //Array para guardar marcas dos carros
+string* modelos = new string[NUM_MODELOS]; //Array para guardar modelos dos carros
+string* marcasET = new string[20]; //Array para guardar marcas que podem ser geradas nas ET´s
 
 BSTNode* insert(BSTNode* root, umCarro data) {
-    if (root == nullptr) {
-        BSTNode* newNode = new BSTNode;
+    if (root == nullptr) { //Verifica se a árvore está vazia
+        BSTNode* newNode = new BSTNode; //Criação de um novo nodo
         newNode->data = data;
         newNode->left = nullptr;
         newNode->right = nullptr;
         return newNode;
     }
 
-    // Compare the "marca" values to determine the placement in the BST
+    //Comparar modelos para determinar posição na árvore
     if (data.modelo < root->data.modelo)
         root->left = insert(root->left, data);
     else if (data.modelo > root->data.modelo)
         root->right = insert(root->right, data);
     else {
-        // If the "marca" values are equal, decide based on car ID
+        //Comparar ID'S caso a marca seja a mesma
         if (data.id < root->data.id)
             root->left = insert(root->left, data);
         else if (data.id > root->data.id)
@@ -39,13 +39,13 @@ BSTNode* insert(BSTNode* root, umCarro data) {
 }
 
 void printBST(BSTNode* root) {
-    if (root == nullptr) {
+    if (root == nullptr) { //Verifica se a árvore está vazia
         return;
     }
 
-    printBST(root->left);
-    cout << "Carro ID: " << root->data.id << ", Marca: " << root->data.marca << "-" << root->data.modelo << endl;
-    printBST(root->right);
+    printBST(root->left); // Percorre recursivamente a subárvore esquerda
+    cout << "Carro ID: " << root->data.id << ", Marca: " << root->data.marca << "-" << root->data.modelo << endl; // Imprime os dados do nodo atual
+    printBST(root->right); // Percorre recursivamente a subárvore direita
 }
 
 ET* inicializaEstacoes() { //SARA
@@ -100,60 +100,48 @@ ET* inicializaEstacoes() { //SARA
     return head;
 }
 
-void imprimeListaETs(ET* head) {
-    ET* current = head;
-
-    while (current != nullptr) {
-        cout << "ET " << current->id << ":" << endl;
-        cout << "Mecanico: " << current->mecanico << endl;
-        cout << "Capacidade: " << current->capacidade << endl;
-        cout << "Marca: " << current->marca << endl;
-        cout << "-----------------------------" << endl;
-
-        current = current->next;
-    }
-}
 
 void organizaListaDeEspera(ListaDeEspera*& head) {
-    if (head == nullptr || head->next == nullptr) {
+    if (head == nullptr || head->next == nullptr) { //Verifica se a lista está vazia ou se tem um só elemento
         return;
     }
+     
+    //Inicia apontadores
+    ListaDeEspera* prioridadeA = nullptr; //Cabeça dos nodos c/prioridade
+    ListaDeEspera* prioridadeB = nullptr; //Cauda dos nodos c/prioridade
+    ListaDeEspera* current = head; //Nodo atual a ser inspecionado
+    ListaDeEspera* previous = nullptr; //Nodo seguinte
 
-    ListaDeEspera* prioridadeHead = nullptr;
-    ListaDeEspera* prioridadeTail = nullptr;
-    ListaDeEspera* current = head;
-    ListaDeEspera* previous = nullptr;
-
-    while (current != nullptr) {
-        if (current->data.prioridade == 1) {
-            if (previous == nullptr) {
-                head = current->next;
+    while (current != nullptr) { //Percorre a lista de espera
+        if (current->data.prioridade == 1) { //Verifica se o nodo atual é prioritário
+            if (previous == nullptr) { //Remove o nodo da lista
+                head = current->next; //Atualiza head para o proximo nodo
             }
             else {
-                previous->next = current->next;
+                previous->next = current->next; //Atualiza apontador do nodo anterior
             }
-
-            if (prioridadeHead == nullptr) {
-                prioridadeHead = current;
-                prioridadeTail = current;
+            //Adiciona nodo atual á lista nova
+            if (prioridadeA == nullptr) {
+                prioridadeA = current;
+                prioridadeB = current;
             }
             else {
-                prioridadeTail->next = current;
-                prioridadeTail = current;
+                prioridadeB->next = current;
+                prioridadeB = current;
             }
 
-            current = current->next;
-            prioridadeTail->next = nullptr;
+            current = current->next; //Passa para o proximo nodo
+            prioridadeB->next = nullptr;
         }
         else {
-            previous = current;
-            current = current->next;
+            previous = current; //Atualiza nodo anterior
+            current = current->next; //Passa ao proximo nodo
         }
     }
-
-    if (prioridadeHead != nullptr) {
-        prioridadeTail->next = head;
-        head = prioridadeHead;
+    //Liga a cauda da nova lista á cabeça da original
+    if (prioridadeA != nullptr) {
+        prioridadeB->next = head;
+        head = prioridadeA; //Atualiza cabeça da lista
     }
 }
 
@@ -162,15 +150,15 @@ void adicionaListaDeEspera(ListaDeEspera*& head, carro* newCarro) {
     newNode->data = newCarro->data;
     newNode->next = nullptr;
 
-    if (head == nullptr) {
-        head = newNode;
+    if (head == nullptr) { //Verifica se alista de espera está vazia
+        head = newNode; //Se estiver, o novo carro torn-se o primeiro da lista
     }
-    else {
+    else { //Caso contrário encontra o ultimo nodo
         ListaDeEspera* current = head;
         while (current->next != nullptr) {
             current = current->next;
         }
-        current->next = newNode;
+        current->next = newNode; //Define o novo carro como o proximo nodo
     }
 }
  
@@ -540,7 +528,7 @@ void removerMecanico(ET*& listaET) {
 
     ET* current = listaET;
 
-    // Traverse the ET list to find the mechanic to be removed
+    //Verifica se o mecânico existe em alguma ET
     while (current != nullptr && current->mecanico != nomeMecanico) {
         current = current->next;
     }
@@ -550,7 +538,7 @@ void removerMecanico(ET*& listaET) {
         return;
     }
 
-    // Move all cars in the mechanic's carros array to the repaired cars BST
+    // Coloca todos os carros da ET do mecânico na arvore binária da ET
     carro* carros = current->carros;
     while (carros != nullptr) {
         BSTNode* newRepairedCar = new BSTNode;
@@ -562,35 +550,33 @@ void removerMecanico(ET*& listaET) {
         carros = carros->next;
     }
 
-    // Remove the cars from the carros array
-    current->carros = nullptr;
+    current->carros = nullptr; //Remove todos os carros do array carros da ET
 
-    // Replace the mechanic with a new one
     string novaMecanico, novaMarca;
-    cout << "Introduza o nome do novo mecânico: ";
+    cout << "Introduza o nome do novo mecânico: "; //Substituição do mecânico..
     cin >> novaMecanico;
 
     int contadorMecanicoUnico = 0;
     ET* verificarMarca = listaET;
-    while (verificarMarca != nullptr) {
+    while (verificarMarca != nullptr) { //Verifica se a marca do mecânico é unica na ET
         if (verificarMarca->marca == current->marca) {
             contadorMecanicoUnico++;
         }
         verificarMarca = verificarMarca->next;
     }
 
-    string* novaMarcas = new string[NUM_MARCAS - 1];
+    string* novaMarcas = new string[NUM_MARCAS - 1]; //Cria um novo array de marcas
     int index = 0;
-    if (contadorMecanicoUnico == 1) {
+    if (contadorMecanicoUnico == 1) { //Cria um novo array de marcas sem a marca do mecânico que saiu
         for (int m = 0; m < NUM_MARCAS; m++) {
             if (marcas[m] != current->marca) {
                 novaMarcas[index++] = marcas[m];
             }
         }
-        current->capacidade_atual = 0;
-        current->mecanico = novaMecanico;
-        current->marca = novaMarcas[rand() % NUM_MARCAS - 1];
-        marcasET[current->id] = current->marca;
+        current->capacidade_atual = 0; //Define a ET como vazia atualmente
+        current->mecanico = novaMecanico; //Atualiza nome do mecãnico
+        current->marca = novaMarcas[rand() % NUM_MARCAS - 1]; //Seleciona uma marca aleatória para nova ET
+        marcasET[current->id] = current->marca; //Adiciona nova merca ao array marcasET para poderem ser gerados carros desta marca
 
         cout << "Mecânico removido com sucesso." << endl;
         cout << "Novo mecânico adicionado com sucesso." << endl;
