@@ -163,48 +163,48 @@ void adicionaListaDeEspera(ListaDeEspera*& head, carro* newCarro) {
 }
  
 
-void adicionaCarrosET(ListaDeEspera*& esperaHead, ET* etHead) {
-    int totalCarsAdded = 0; 
+void adicionaCarrosET(ListaDeEspera*& esperaHead, ET* etHead) { //Função para adicionar carros a ETs
+    int totalCarsAdded = 0;  //Inicializa variável a zero
 
-    ListaDeEspera* esperaCurrent = esperaHead;
+    ListaDeEspera* esperaCurrent = esperaHead; //Apontador para o nodo atual
     ListaDeEspera* esperaPrevious = nullptr;
 
-    while (esperaCurrent != nullptr && totalCarsAdded < 8) {
-        umCarro currentCar = esperaCurrent->data;
+    while (esperaCurrent != nullptr && totalCarsAdded < 8) { //Ciclo vair parar após percorrer todas as ETs ou depois de terem sido adicionados 8 carros
+        umCarro currentCar = esperaCurrent->data; //Obtem INFO do carro no nodo atual
 
-        ET* currentET = etHead;
-        ET* selectedET = nullptr; 
+        ET* currentET = etHead; //Apontador para a ET selecionada
+        ET* selectedET = nullptr;  //Apontador para ET na qual vai ser adicionado o carro
 
        
-        while (currentET != nullptr) {
+        while (currentET != nullptr) { //Percorre todas as ETs... (que tenha a mesma marca e capacidade disponível)
             if (currentET->capacidade_atual < currentET->capacidade && currentET->marca == currentCar.marca) {
-                selectedET = currentET;
+                selectedET = currentET; //Seleciona a ET
                 break;
             }
-            currentET = currentET->next;
+            currentET = currentET->next; //Verifica a próxima ET
         }
 
         if (selectedET != nullptr) {
            
-            carro* newCar = new carro();
-            newCar->data = currentCar;
+            carro* newCar = new carro(); //Criado um novo nodo para o carro
+            newCar->data = currentCar; //Atribui INFO do carro ao nodo
 
             
-            if (selectedET->carros == nullptr) {
-                selectedET->carros = newCar;
+            if (selectedET->carros == nullptr) { //Adicionar carro á lista de carros da ET..
+                selectedET->carros = newCar; //Se não tiver carros ainda, o primeiro carro é definido como primeiro nodo
             }
             else {
-                carro* temp = selectedET->carros;
-                while (temp->next != nullptr) {
+                carro* temp = selectedET->carros; 
+                while (temp->next != nullptr) { //Caso contrário, adiciona o carro ao fim da Lista dos Carros
                     temp = temp->next;
                 }
                 temp->next = newCar;
             }
 
          
-            selectedET->capacidade_atual++;
+            selectedET->capacidade_atual++; //Incrementa capacidade atual da ET
 
-        
+            //Remove o carro adicionado (nodo atual) da Lista De Espera
             if (esperaPrevious == nullptr) {
                 esperaHead = esperaCurrent->next;
             }
@@ -213,14 +213,14 @@ void adicionaCarrosET(ListaDeEspera*& esperaHead, ET* etHead) {
             }
             ListaDeEspera* temp = esperaCurrent;
             esperaCurrent = esperaCurrent->next;
-            delete temp;
+            delete temp; //Liberta espaço da memória anteriormente ocupado
 
-            totalCarsAdded++;
+            totalCarsAdded++; //Incrementa numero de carros adicionados
         }
         else {
             
-            esperaPrevious = esperaCurrent;
-            esperaCurrent = esperaCurrent->next;
+            esperaPrevious = esperaCurrent; //Atualiza o nodo
+            esperaCurrent = esperaCurrent->next; //Passa para o proximo nodo
         }
     }
 }
