@@ -163,7 +163,7 @@ void adicionaListaDeEspera(ListaDeEspera*& head, carro* newCarro) {
 }
  
 
-void insertCarsIntoETs(ListaDeEspera*& esperaHead, ET* etHead) {
+void adicionaCarrosET(ListaDeEspera*& esperaHead, ET* etHead) {
     int totalCarsAdded = 0; 
 
     ListaDeEspera* esperaCurrent = esperaHead;
@@ -665,7 +665,7 @@ void SimulaDia(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho) { //
             incrementaDiasET(ethead);
             reparaCarros(ethead);
             criaCarrosListaDeEspera(head, 10);
-            insertCarsIntoETs(head, ethead);
+           adicionaCarrosET(head, ethead);
             master(ethead, head);
             break;
         case 'g':
