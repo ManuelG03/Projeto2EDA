@@ -153,12 +153,12 @@ void adicionaListaDeEspera(ListaDeEspera*& head, carro* newCarro) {
     if (head == nullptr) { //Verifica se alista de espera está vazia
         head = newNode; //Se estiver, o novo carro torn-se o primeiro da lista
     }
-    else { //Caso contrário encontra o ultimo nodo
+    else { //Caso contrário encontra o ultimo nodo da lista
         ListaDeEspera* current = head;
         while (current->next != nullptr) {
             current = current->next;
         }
-        current->next = newNode; //Define o novo carro como o proximo nodo
+        current->next = newNode; //Define o novo carro como o proximo nodo(do ultimo)
     }
 }
  
@@ -225,7 +225,7 @@ void insertCarsIntoETs(ListaDeEspera*& esperaHead, ET* etHead) {
     }
 }
 
-void criaCarrosListaDeEspera(ListaDeEspera*& head, int numCarsToAdd) {
+void criaCarrosListaDeEspera(ListaDeEspera*& head, int numCarsToAdd) { //Função para criar 10 carros de cada vez que é chamada
     for (int i = 0; i < numCarsToAdd; i++) {
         carro* newCarro = new carro();
         
@@ -244,13 +244,13 @@ void criaCarrosListaDeEspera(ListaDeEspera*& head, int numCarsToAdd) {
         newCarro->data.custo_reparacao = rand() % 120;
  
 
-        adicionaListaDeEspera(head, newCarro);
+        adicionaListaDeEspera(head, newCarro); //Cada carro que é criado é passado como parametro em adicionaListaDeEspera e é inserido na Lista de Espera
     }
-    numCarrosCriados += 10;
-    organizaListaDeEspera(head);
+    numCarrosCriados += 10; //Incrementa numCarrosCriados em 10 unidades
+    organizaListaDeEspera(head); //Organiza ListaDeEspera de acordo com a prioridade dos veículos de cada vez que são adicionados carros
 }
 
-void verListaDeEspera(const ListaDeEspera* head) {
+void verListaDeEspera(const ListaDeEspera* head) { //Função para dar output de todos os carros presentes na lista de espera
     const ListaDeEspera* current = head;
     cout << "LISTA DE ESPERA: " << endl;
     while (current != nullptr) {
@@ -270,7 +270,7 @@ void verListaDeEspera(const ListaDeEspera* head) {
     }
 }
 
-void master(ET* etHead, ListaDeEspera* head) {
+void master(ET* etHead, ListaDeEspera* head) { //Função para mostrar todas as ET'S + carros Lista de Espera
     ET* currentET = etHead;
     cout << "------------------------------------" << endl;
     while (currentET != nullptr) {
@@ -304,15 +304,15 @@ void master(ET* etHead, ListaDeEspera* head) {
 
         cout << "------------------------------------" << endl;
 
-        currentET = currentET->next;
+        currentET = currentET->next; //Passa por todas as Ets..
     }
     cout << endl;
-    verListaDeEspera(head);
+    verListaDeEspera(head); //Mostra os carros da ListaDeEspera no final
 }
 
-void incrementaDiasET(ET* head) {
+void incrementaDiasET(ET* head) { //Função para incrementar dias na ET em um unidade (dos carros que estão em ETS)
     if (numCarrosCriados == 0) {
-        return;
+        return; //Se não tiverem sido criado carros, nada acontece
     }
 
     ET* currentET = head;
@@ -321,14 +321,14 @@ void incrementaDiasET(ET* head) {
         carro* currentCar = currentET->carros;
 
         while (currentCar != nullptr) {
-            // Increment dias_ET for the current car
+            //Increment dias_ET do carro atual
             currentCar->data.dias_ET = currentCar->data.dias_ET + 1;
 
-            // Move to the next car
+            //Passa para o próximo carro
             currentCar = currentCar->next;
         }
 
-        // Move to the next ET
+        //Passa para a próxima ET
         currentET = currentET->next;
     }
 }
@@ -647,7 +647,7 @@ void PainelDeGestao(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho)
     cin.ignore();
 }
 
-void SimulaDia(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho) {
+void SimulaDia(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho) { //Função utilizada para simular um dia na Oficina EDA
     char opcao = ' ';
     bool sair = false;
 
@@ -692,12 +692,12 @@ int main(int argc, char* argv[]) {
     if (fileMarcas.is_open()) {
         int i = 0;
         while (!fileMarcas.eof()) {
-            getline(fileMarcas, modelos[i++]);
+            getline(fileMarcas, modelos[i++]); //Coloca todos os modelos de carros do ficheiro no array modelos na inicialização
         }
     }
 
-    ListaDeEspera* ListaDeEspera = nullptr;
-    ET* ListaETs = inicializaEstacoes();
+    ListaDeEspera* ListaDeEspera = nullptr; //Cria a Lista De Espera
+    ET* ListaETs = inicializaEstacoes(); //Cria um determina número de ET0s e coloca-as numa lista
     
     caminhosFicheiros* caminhos = new caminhosFicheiros;
 
