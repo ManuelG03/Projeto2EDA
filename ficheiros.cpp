@@ -119,14 +119,14 @@ ListaDeEspera* carregarListaDeEspera(ListaDeEspera* head, caminhosFicheiros* cam
     return head; //Retorna a cabeça da lista atualizada
 } 
 
-void gravarCarrosReparados(BSTNode* carrosReparados, ofstream& fileReparados) {
+void gravarCarrosReparados(BSTNode* carrosReparados, ofstream& fileReparados) { //Recebe como parâmetro o ficheiro
     BSTNode* carroReparado = carrosReparados;
 
-    if (carrosReparados == NULL) {
-        return;
+    if (carrosReparados == NULL) { //Verifica se a árvore está vazia
+        return; 
     }
 
-    gravarCarrosReparados(carroReparado->left, fileReparados);
+    gravarCarrosReparados(carroReparado->left, fileReparados); //Chama recursivamente a função para o nó esquerdo
 
     fileReparados << carroReparado->data.id << endl;
     fileReparados << carroReparado->data.marca << endl;
@@ -141,37 +141,37 @@ void gravarCarrosReparados(BSTNode* carrosReparados, ofstream& fileReparados) {
         fileReparados << "Nao" << endl;
     }
 
-    gravarCarrosReparados(carroReparado->right, fileReparados);
+    gravarCarrosReparados(carroReparado->right, fileReparados); //Chama recursivamente a função para o nó direito
 
 }
 
 int carregarIdEstacoes(caminhosFicheiros* caminho) {
     fstream file;
-    file.open(caminho->caminhoEstacoes);
+    file.open(caminho->caminhoEstacoes); //Abrir o ficheiro especificado pelo caminho
 
     string linha;
     int id_ETS;
 
     getline(file, linha);
-    id_ETS = stoi(linha);
+    id_ETS = stoi(linha); //Converte a string para int
 
-    file.close();
+    file.close(); //Fechar o ficheiro
 
-    return id_ETS + 1;
+    return id_ETS + 1; //Retorna o id das estações + 1 para adicionar estação posteriormente
 }
 
 void gravarEstacoes(ET* ethead, int numETs, caminhosFicheiros* caminho) {
     ofstream fileReparados;
-    fileReparados.open(caminho->caminhoCarrosReparados);
+    fileReparados.open(caminho->caminhoCarrosReparados); //Abrir o ficheiro especificado pelo caminho
 
     ofstream fileEstacoes;
-    fileEstacoes.open(caminho->caminhoEstacoes);
+    fileEstacoes.open(caminho->caminhoEstacoes); //Abrir o ficheiro especificado pelo caminho
 
-    fileEstacoes << numETs << endl;
+    fileEstacoes << numETs << endl; //Guarda o número de ETs
 
-    ET* estacao = ethead;
+    ET* estacao = ethead; //Apontador para percorrer a lista de estações
 
-    while (estacao != nullptr) {
+    while (estacao != nullptr) { //Percorre a lista de estações
         fileEstacoes << estacao->id << endl;
         fileEstacoes << estacao->capacidade << endl;
         fileEstacoes << estacao->mecanico << endl;
@@ -180,7 +180,7 @@ void gravarEstacoes(ET* ethead, int numETs, caminhosFicheiros* caminho) {
         fileEstacoes << estacao->capacidade_atual << endl;
         fileEstacoes << estacao->faturacao << endl;
 
-        carro* carroNaET = estacao->carros;
+        carro* carroNaET = estacao->carros; //Apontador para percorrer a lista de carros da estação
         while (carroNaET != nullptr) {
             fileEstacoes << carroNaET->data.id << endl;
             fileEstacoes << carroNaET->data.marca << endl;
@@ -195,37 +195,37 @@ void gravarEstacoes(ET* ethead, int numETs, caminhosFicheiros* caminho) {
                 fileEstacoes << "Nao" << endl;
             }
 
-            carroNaET = carroNaET->next;
+            carroNaET = carroNaET->next; //Avança para o próximo carro na estação
         }
 
-        gravarCarrosReparados(estacao->repaired_cars, fileReparados);
+        gravarCarrosReparados(estacao->repaired_cars, fileReparados); //Chama a função gravarCarrosReparados para gravar os carros reparados
 
-        estacao = estacao->next;
+        estacao = estacao->next; //Avança para a próxima estação
     }
 
-    fileEstacoes.close();
-    fileReparados.close();
+    fileEstacoes.close(); //Fecha o ficheiro
+    fileReparados.close(); //Fecha o ficheiro
 }
 
 ET* carregarEstacoes(ET* ethead, caminhosFicheiros* caminho) {
     fstream fileEstacoes;
-    fileEstacoes.open(caminho->caminhoEstacoes);
+    fileEstacoes.open(caminho->caminhoEstacoes); //Abrir o ficheiro especificado pelo caminho
 
     fstream fileReparados;
-    fileReparados.open(caminho->caminhoCarrosReparados);
+    fileReparados.open(caminho->caminhoCarrosReparados); //Abrir o ficheiro especificado pelo caminho
 
     string linha;
     int numETs = 0;
 
-    delete ethead;
-    ethead = NULL;
+    delete ethead; //Liberta a memória ocupada pela lista de estações
+    ethead = NULL; //Define como NULL
 
     getline(fileEstacoes, linha);
     numETs = stoi(linha);
 
     for (int i = 0; i < numETs; i++) {
 
-        ET* estacoes = new ET;
+        ET* estacoes = new ET; //Cria um novo nó para armazenar uma estação
 
         getline(fileEstacoes, linha);
         estacoes->id = stoi(linha);
@@ -241,7 +241,7 @@ ET* carregarEstacoes(ET* ethead, caminhosFicheiros* caminho) {
         estacoes->faturacao = stoi(linha);
 
         for (int j = 0; j < estacoes->capacidade_atual; j++) {
-            carro* carroNaET = new carro;
+            carro* carroNaET = new carro; //Cria um novo nó para armazenar um carro da ET
 
             getline(fileEstacoes, linha);
             carroNaET->data.id = stoi(linha);
@@ -261,11 +261,11 @@ ET* carregarEstacoes(ET* ethead, caminhosFicheiros* caminho) {
                 carroNaET->data.prioridade = false;
             }
 
-            if (j == 0) {
+            if (j == 0) { //Se for o primeiro carro da estação, atribui ao array carros da ET
                 estacoes->carros = carroNaET;
             }
-            else {
-                carro* iterador = estacoes->carros;
+            else { //Caso contrário, percorre a lista de carros da estação e adiciona o carro no final
+                carro* iterador = estacoes->carros; 
 
                 while (iterador->next != NULL) {
                     iterador = iterador->next;
@@ -274,11 +274,11 @@ ET* carregarEstacoes(ET* ethead, caminhosFicheiros* caminho) {
                 iterador->next = carroNaET;
             }
 
-            carroNaET = carroNaET->next;
+            carroNaET = carroNaET->next; //Avança para o próximo carro
         }
 
         for (int k = 0; k < estacoes->carros_reparados; k++) {
-            BSTNode* carroReparado = new BSTNode;
+            BSTNode* carroReparado = new BSTNode; //Cria um novo nó para armazenar um carro reparado
 
             getline(fileReparados, linha);
             carroReparado->data.id = stoi(linha);
@@ -297,10 +297,10 @@ ET* carregarEstacoes(ET* ethead, caminhosFicheiros* caminho) {
             else if (linha == "Nao") {
                 carroReparado->data.prioridade = false;
             }
-            estacoes->repaired_cars = insert(estacoes->repaired_cars, carroReparado->data);
+            estacoes->repaired_cars = insert(estacoes->repaired_cars, carroReparado->data); //Insere o carro reparado na árvore
         }
 
-        if (i == 0) {
+        if (i == 0) { //Se for a primeira estação, atribui ao apontador ethead
             ethead = estacoes;
         }
         else {
@@ -313,18 +313,18 @@ ET* carregarEstacoes(ET* ethead, caminhosFicheiros* caminho) {
             iterador->next = estacoes;
         }
 
-        estacoes = estacoes->next;
+        estacoes = estacoes->next; //Avança para a próxima estação
     }
 
-    fileReparados.close();
-    fileEstacoes.close();
+    fileReparados.close(); //Fecha o ficheiro
+    fileEstacoes.close(); //Fecha o ficheiro
 
-    return ethead;
+    return ethead; //Retorna o apontador ethead
 }
 
 string* carregarMarcasET(caminhosFicheiros* caminho) {
     fstream fileEstacoes;
-    fileEstacoes.open(caminho->caminhoEstacoes);
+    fileEstacoes.open(caminho->caminhoEstacoes); //Abrir o ficheiro especificado pelo caminho
 
     int numETs = 0;
     int capacidade_atual = 0;
@@ -333,7 +333,7 @@ string* carregarMarcasET(caminhosFicheiros* caminho) {
     getline(fileEstacoes, linha);
     numETs = stoi(linha);
 
-    string* marcasET = new string[20];
+    string* marcasET = new string[20]; //Cria um array de strings com tamanho 20 para armazenar as marcas dos ETs
 
     for (int i = 0; i < numETs; i++) {
         getline(fileEstacoes, linha);
@@ -356,26 +356,26 @@ string* carregarMarcasET(caminhosFicheiros* caminho) {
         }
     }
 
-    fileEstacoes.close();
+    fileEstacoes.close(); //Fechar o ficheiro
 
-    return marcasET;
+    return marcasET; //Retorna o array de marcas das ETs
 }
 
 int carregarNumETs(caminhosFicheiros* caminho) {
     fstream fileEstacoes;
-    fileEstacoes.open(caminho->caminhoEstacoes);
+    fileEstacoes.open(caminho->caminhoEstacoes); //Abrir o ficheiro especificado pelo caminho
 
     string linha;
 
     getline(fileEstacoes, linha);
-    int numETs = stoi(linha);
+    int numETs = stoi(linha); //Converte a linha num número inteiro e atribui a numETs
 
-    fileEstacoes.close();
+    fileEstacoes.close(); //Fechar o ficheiro
 
-    return numETs;
+    return numETs; //Retornar o array de marcas dos ETs
 }
 
 void gravarFicheiros(ListaDeEspera* head, ET* ethead, int numETs, caminhosFicheiros* caminho, int id_Carros) {
-    gravarListaDeEspera(head, caminho, id_Carros);
-    gravarEstacoes(ethead, numETs, caminho);
+    gravarListaDeEspera(head, caminho, id_Carros); //Chama a função gravarListaDeEspera
+    gravarEstacoes(ethead, numETs, caminho); //Chama a função gravarEstacoes
 }
