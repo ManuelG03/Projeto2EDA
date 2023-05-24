@@ -48,54 +48,54 @@ void printBST(BSTNode* root) {
     printBST(root->right); // Percorre recursivamente a subárvore direita
 }
 
-ET* inicializaEstacoes() { //SARA
+ET* inicializaEstacoes() {
     int index = 0;
-    string file = "marcas.txt";                                 
+    string file = "marcas.txt";
     ifstream fileMarcas(file);
 
     string marca;
 
-    if (fileMarcas.is_open()) {
+    if (fileMarcas.is_open()) {                                     //array que guarda as marcas do ficheiro .txt
         int i = 0;
         while (!fileMarcas.eof()) {
-            getline(fileMarcas, marcas[i++]);               
+            getline(fileMarcas, marcas[i++]);
         }
     }
-    
+
     srand(time(0));
-    
-    ET* head = nullptr;
-    ET* current = nullptr;
 
-    for (int i = 0; i < numETs; i++) {
-        ET* newET = new ET;
+    ET* head = nullptr;                                         //apontador do 1ºelemento da lista (cabeçalho)
+    ET* current = nullptr;                                      //apontador do último elemento da lista (ignorando o vazio)
 
-        newET->id = id_ETS++;
-        newET->capacidade = rand() % 4 + 2; 
-        newET->marca = marcas[rand() % NUM_MARCAS - 1];
-        newET->carros = nullptr; 
-        newET->repaired_cars = nullptr;
-        newET->carros_reparados = 0;
-        newET->capacidade_atual = 0;
-        newET->faturacao = 0;
-        newET->next = nullptr;
+    for (int i = 0; i < numETs; i++) {                         //preencher cada característica das ETs:
+        ET* newET = new ET;                                    //apontador para uma nova ET
 
-        marcasET[index++] = newET->marca;
-        
+        newET->id = id_ETS++;                                  //id da ET
+        newET->capacidade = rand() % 4 + 2;                    //capacidade total da ET (valor aleatório entre 2 e 5)
+        newET->marca = marcas[rand() % NUM_MARCAS - 1];        //marca atribuída á ET
+        newET->carros = nullptr;                               //carros presentes na ET 
+        newET->repaired_cars = nullptr;                        //carros reparados
+        newET->carros_reparados = 0;                           //n+ de carros reparados
+        newET->capacidade_atual = 0;                           //nº de carros atualmente na ET
+        newET->faturacao = 0;                                  //valor total de faturação da ET
+        newET->next = nullptr;                                 //próximo elemento da lista é nulo
+
+        marcasET[index++] = newET->marca;                      //guardar no array as marcas que estão a ser usadas na simulação
+
         cout << "Introduza o mecanico para a ET " << newET->id << ": ";
-        getline(cin, newET->mecanico); 
+        getline(cin, newET->mecanico);                                      //atribuir um mecânico á ET
 
 
-        if (head == nullptr) {
-            head = newET;
-            current = newET;
+        if (head == nullptr) {        //se a lista estiver vazia
+            head = newET;             //1º elemento da lista passa a ser a ET criada
+            current = newET;          //aponta para a nova ET 
         }
-        else {
-            current->next = newET;
-            current = newET;
+        else {                        //caso a lista tenha 1 ou mais elementos(ETs)
+            current->next = newET;    //o próximo elemento da lista passa a ser a ET criada
+            current = newET;          //aponta para o novo elemento
         }
     }
-    
+
 
     return head;
 }
@@ -409,69 +409,69 @@ void printRepairedCarsOfET(ET* head) {
     cout << "ET com ID " << etId << " não encontrado." << endl; //Caso o ciclo de encontrar o id termine e não seja encontrado o id é mostrada a mensagem
 }
 
-void atualizaTempoReparacao(ListaDeEspera* lista) { //SARA
+void atualizaTempoReparacao(ListaDeEspera* lista) {
     string marca, modelo;
     int newTempoReparacao;
 
     cout << "Introduza a marca do carro: ";
-    cin >> marca;
+    cin >> marca;                                                                 //utilizador insere a marca
     cout << "Introduza o modelo do carro: ";
-    cin >> modelo;
+    cin >> modelo;                                                                //utilizador insere o modelo
     cout << "Introduza o novo tempo de reparação: ";
-    cin >> newTempoReparacao;
+    cin >> newTempoReparacao;                                                     //utilizador insere o novo tempo de reparação
 
-    ListaDeEspera* current = lista;
-    bool carUpdated = false;
+    ListaDeEspera* current = lista;                                               //apontador da lista de espera
+    bool carUpdated = false;                                                      //o carro ainda não foi encontrado
 
-    while (current != nullptr) {
-        if (current->data.marca == marca && current->data.modelo == modelo) {
-            current->data.tempo_reparacao = newTempoReparacao;
-            carUpdated = true;
+    while (current != nullptr) {                                                 //ciclo vai decorrer até percorrer a lista toda
+        if (current->data.marca == marca && current->data.modelo == modelo) {    //caso as características inseridas pelo utilizador sejam encontradas
+            current->data.tempo_reparacao = newTempoReparacao;                   //tempo de reparação atualizado
+            carUpdated = true;                                                   //carro encontrado
         }
-        current = current->next;
+        current = current->next;                                                 //passar para o próximo elemento da lita
     }
 
-    if (carUpdated) {
+    if (carUpdated) {                                                                      //caso o carro seja encontrado
         cout << "O tempo de reparação foi atualizado para os seguintes carros:" << endl;
         current = lista;
         while (current != nullptr) {
             if (current->data.marca == marca && current->data.modelo == modelo) {
                 cout << "ID: " << current->data.id << ", Marca: " << current->data.marca
-                    << ", Modelo: " << current->data.modelo << endl;
+                    << ", Modelo: " << current->data.modelo << endl;                        //caracteristicas dos veículos que sofreram atualizações no tempo de reparação
             }
             current = current->next;
         }
     }
-    else {
+    else {                                                                                 //caso o carro não seja encontrado
         cout << "Nenhum carro teve o tempo de reparação atualizado." << endl;
     }
 }
 
-void adicionarPrioridade(ListaDeEspera* lista) { //SARA
+void adicionarPrioridade(ListaDeEspera* lista) {
     int id;
 
     cout << "Introduza o ID do veículo: ";
-    cin >> id;
+    cin >> id;                                                                          //utilizador insere id
 
-    ListaDeEspera* current = lista;
-    bool vehicleFound = false;
+    ListaDeEspera* current = lista;                                                     //apontador da lista de espera
+    bool vehicleFound = false;                                                          //veículo naõ encontrado
 
-    while (current != nullptr) {
-        if (current->data.id == id) {
-            vehicleFound = true;
-            if (current->data.prioridade) {
+    while (current != nullptr) {                                                        //ciclo que percorre a lista de espera
+        if (current->data.id == id) {                                                   //caso o id de um veículo seja igual ao que foi inserido pelo utilizador
+            vehicleFound = true;                                                        //veículo encontrado
+            if (current->data.prioridade) {                                             //caso o veículo já tenha prioridade atribuída
                 cout << "Este veículo já é prioritário." << endl;
             }
-            else {
-                current->data.prioridade = true;
+            else {                                                                      //caso ainda não tenha prioridade
+                current->data.prioridade = true;                                        //adicionar prioridade
                 cout << "A prioridade do veículo foi alterada com sucesso." << endl;
             }
             break;
         }
-        current = current->next;
+        current = current->next;                                                        //próximo elemento da lista de espera é analisado
     }
 
-    if (!vehicleFound) {
+    if (!vehicleFound) {                                                                //caso não exista um veículo com o id inserido 
         cout << "Veículo não encontrado." << endl;
     }
 }
