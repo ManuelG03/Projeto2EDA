@@ -516,9 +516,6 @@ void adicionarET(ET*& listaET) {
 
     marcasET[numETs] = marca;
     numETs++;
-    for (int i = 0; i < numETs; i++) {
-        cout << marcasET[i] << endl;
-    }
 }
 
 void removerMecanico(ET*& listaET) {
