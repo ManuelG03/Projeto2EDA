@@ -8,36 +8,39 @@ using namespace std;
 
 int carregarIdCarros(caminhosFicheiros* caminho) {
     fstream file;
-    file.open(caminho->caminhoListaDeEspera);
+    file.open(caminho->caminhoListaDeEspera); //Abrir o ficheiro especificado pelo caminho
     string linha;
-    int id_Carros;
+    int id_Carros; 
 
-    getline(file, linha);
+    getline(file, linha); //Lê a primeira linha do ficheiro
     id_Carros = stoi(linha);
 
-    file.close();
+    file.close(); //Fechar o ficheiro
 
-    return id_Carros;
+    return id_Carros; //Retornar o valor do id de carros
 }
 
 void gravarListaDeEspera(ListaDeEspera* head, caminhosFicheiros* caminho, int id_Carros) {
     ofstream file;
-    file.open(caminho->caminhoListaDeEspera);
-
-    ListaDeEspera* contarCarro = head;
+    file.open(caminho->caminhoListaDeEspera); //Abrir o ficheiro especificado pelo caminho
+    
+    ListaDeEspera* contarCarro = head; //Apontador para percorrer a lista de espera
     int numListaDeEspera = 0;
 
+    //Conta o número de elementos na lista de espera
     while (contarCarro != nullptr) {
-        numListaDeEspera++;
+        numListaDeEspera++; //Incrementar número de carros na lista de espera
 
-        contarCarro = contarCarro->next;
+        contarCarro = contarCarro->next; //Avança para o próximo carro em espera na lista
     }
 
-    file << id_Carros << endl;
+    file << id_Carros << endl; //Gravar o último id dos carros
 
-    file << numListaDeEspera << endl;
+    file << numListaDeEspera << endl; //Gravar o número de carros na lista de espera
 
-    ListaDeEspera* carroEmEspera = head;
+    ListaDeEspera* carroEmEspera = head; //Apontador para percorrer a lista de espera novamente
+
+    //Grava as informações de cada carro da lista de espera no ficheiro
     while (carroEmEspera != nullptr) {
         file << carroEmEspera->data.id << endl;
         file << carroEmEspera->data.marca << endl;
@@ -52,21 +55,21 @@ void gravarListaDeEspera(ListaDeEspera* head, caminhosFicheiros* caminho, int id
             file << "Nao" << endl;
         }
 
-        carroEmEspera = carroEmEspera->next;
+        carroEmEspera = carroEmEspera->next; //Avança para o próximo carro em espera na lista
     }
 
-    file.close();
+    file.close(); //Fechar o ficheiro
 }
 
 ListaDeEspera* carregarListaDeEspera(ListaDeEspera* head, caminhosFicheiros* caminho) {
     fstream file;
-    file.open(caminho->caminhoListaDeEspera);
+    file.open(caminho->caminhoListaDeEspera); //Abrir o ficheiro especificado pelo caminho
 
     string linha;
     int numListaDeEspera = 0;
 
-    delete head;
-    head = NULL;
+    delete head; //Liberta a memória ocupada pela lista de espera atual
+    head = NULL; //Define a cabeça da lista como nula
 
     getline(file, linha);
 
@@ -74,8 +77,8 @@ ListaDeEspera* carregarListaDeEspera(ListaDeEspera* head, caminhosFicheiros* cam
     numListaDeEspera = stoi(linha);
 
     for (int i = 0; i < numListaDeEspera; i++) {
-        ListaDeEspera* listadeespera = new ListaDeEspera;
-        umCarro carroEmEspera;
+        ListaDeEspera* listadeespera = new ListaDeEspera; //Cria um novo nó da lista de espera
+        umCarro carroEmEspera; //Variável para armazenar as informações do carro
 
         getline(file, linha);
         carroEmEspera.id = stoi(linha);
@@ -95,25 +98,25 @@ ListaDeEspera* carregarListaDeEspera(ListaDeEspera* head, caminhosFicheiros* cam
             carroEmEspera.prioridade = false;
         }
 
-        listadeespera->data = carroEmEspera;
+        listadeespera->data = carroEmEspera; //Atribui as informações do carro ao nó da lista de espera
 
         if (i == 0) {
-            head = listadeespera;
+            head = listadeespera; //Se for o primeiro elemento, define-o como cabeça da lista
         }
         else {
             ListaDeEspera* iterador = head;
 
             while (iterador->next != NULL) {
-                iterador = iterador->next;
+                iterador = iterador->next; //Avança para o próximo nó da lista
             }
 
-            iterador->next = listadeespera;
+            iterador->next = listadeespera; //Adiciona o nó atual no final da lista
         }
 
-        listadeespera = listadeespera->next;
+        listadeespera = listadeespera->next; //Avança para o próximo nó
     }
 
-    return head;
+    return head; //Retorna a cabeça da lista atualizada
 } 
 
 void gravarCarrosReparados(BSTNode* carrosReparados, ofstream& fileReparados) {

@@ -391,22 +391,22 @@ void reparaCarros(ET* head) {
 
 void printRepairedCarsOfET(ET* head) {
     int etId;
-    cout << "Introduza o ID da ET: ";
+    cout << "Introduza o ID da ET: "; //Introdução do id da ET a ver os carros reparados
     cin >> etId;
 
     ET* currentET = head;
 
-    while (currentET != nullptr) {
-        if (currentET->id == etId) {
+    while (currentET != nullptr) { //Enquanto não chegar ao fim das ETs
+        if (currentET->id == etId) { //Para encontrar o id
             BSTNode* root = currentET->repaired_cars;
             cout << "Carros reparados da ET " << etId << ":" << endl;
-            printBST(root);
-            return;
+            printBST(root); //Utilizada a função de imprimir a árvore binária
+            return; 
         }
-        currentET = currentET->next;
+        currentET = currentET->next; //Passar à próxima ET até encontrar o id
     }
 
-    cout << "ET com ID " << etId << " não encontrado." << endl;
+    cout << "ET com ID " << etId << " não encontrado." << endl; //Caso o ciclo de encontrar o id termine e não seja encontrado o id é mostrada a mensagem
 }
 
 void atualizaTempoReparacao(ListaDeEspera* lista) { //SARA
