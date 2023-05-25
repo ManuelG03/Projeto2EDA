@@ -15,11 +15,11 @@ string* marcasET = new string[20]; //Array para guardar marcas que podem ser ger
 
 BSTNode* insert(BSTNode* root, umCarro data) {
     if (root == nullptr) { //Verifica se a árvore está vazia
-        BSTNode* newNode = new BSTNode; //Criação de um novo nodo
-        newNode->data = data;
-        newNode->left = nullptr;
-        newNode->right = nullptr;
-        return newNode;
+        BSTNode* novoNodo = new BSTNode; //Criação de um novo nodo
+        novoNodo->data = data;
+        novoNodo->left = nullptr;
+        novoNodo->right = nullptr;
+        return novoNodo;
     }
 
     //Comparar modelos para determinar posição na árvore
@@ -101,7 +101,7 @@ ET* inicializaEstacoes() {
 }
 
 
-void organizaListaDeEspera(ListaDeEspera*& head) {
+void organizaListaDeEspera(ListaDeEspera*& head) { //Função para organizar lista de espera de acordo com a prioridade
     if (head == nullptr || head->next == nullptr) { //Verifica se a lista está vazia ou se tem um só elemento
         return;
     }
@@ -145,7 +145,7 @@ void organizaListaDeEspera(ListaDeEspera*& head) {
     }
 }
 
-void adicionaListaDeEspera(ListaDeEspera*& head, carro* newCarro) {
+void adicionaListaDeEspera(ListaDeEspera*& head, carro* newCarro) { //Adiciona carros á lista de espera
     ListaDeEspera* newNode = new ListaDeEspera();
     newNode->data = newCarro->data;
     newNode->next = nullptr;
@@ -166,11 +166,11 @@ void adicionaListaDeEspera(ListaDeEspera*& head, carro* newCarro) {
 void adicionaCarrosET(ListaDeEspera*& esperaHead, ET* etHead) { //Função para adicionar carros a ETs
     int totalCarsAdded = 0;  //Inicializa variável a zero
 
-    ListaDeEspera* esperaCurrent = esperaHead; //Apontador para o nodo atual
-    ListaDeEspera* esperaPrevious = nullptr;
+    ListaDeEspera* esperaAtual = esperaHead; //Apontador para o nodo atual
+    ListaDeEspera* esperaAnterior = nullptr;
 
-    while (esperaCurrent != nullptr && totalCarsAdded < 8) { //Ciclo vair parar após percorrer todas as ETs ou depois de terem sido adicionados 8 carros
-        umCarro currentCar = esperaCurrent->data; //Obtem INFO do carro no nodo atual
+    while (esperaAtual != nullptr && totalCarsAdded < 8) { //Ciclo vair parar após percorrer todas as ETs ou depois de terem sido adicionados 8 carros
+        umCarro currentCar = esperaAtual->data; //Obtem INFO do carro no nodo atual
 
         ET* currentET = etHead; //Apontador para a ET selecionada
         ET* selectedET = nullptr;  //Apontador para ET na qual vai ser adicionado o carro
@@ -205,22 +205,22 @@ void adicionaCarrosET(ListaDeEspera*& esperaHead, ET* etHead) { //Função para ad
             selectedET->capacidade_atual++; //Incrementa capacidade atual da ET
 
             //Remove o carro adicionado (nodo atual) da Lista De Espera
-            if (esperaPrevious == nullptr) {
-                esperaHead = esperaCurrent->next;
+            if (esperaAnterior == nullptr) {
+                esperaHead = esperaAtual->next;
             }
             else {
-                esperaPrevious->next = esperaCurrent->next;
+                esperaAnterior->next = esperaAtual->next;
             }
-            ListaDeEspera* temp = esperaCurrent;
-            esperaCurrent = esperaCurrent->next;
+            ListaDeEspera* temp = esperaAtual;
+            esperaAtual = esperaAtual->next;
             delete temp; //Liberta espaço da memória anteriormente ocupado
 
             totalCarsAdded++; //Incrementa numero de carros adicionados
         }
         else {
             
-            esperaPrevious = esperaCurrent; //Atualiza o nodo
-            esperaCurrent = esperaCurrent->next; //Passa para o proximo nodo
+            esperaAnterior = esperaAtual; //Atualiza o nodo
+            esperaAtual = esperaAnterior->next; //Passa para o proximo nodo
         }
     }
 }
@@ -229,7 +229,7 @@ void criaCarrosListaDeEspera(ListaDeEspera*& head, int numCarsToAdd) { //Função 
     for (int i = 0; i < numCarsToAdd; i++) {
         carro* newCarro = new carro();
         
-        newCarro->data.id = id_Carros++;
+        newCarro->data.id = id_Carros++; //Atribui diversos atributos ao carro..
         newCarro->data.marca = marcasET[rand() % numETs];
         newCarro->data.modelo = modelos[rand() % NUM_MODELOS];
         int probabilidade = rand() % 100;
@@ -334,7 +334,7 @@ void incrementaDiasET(ET* head) { //Função para incrementar dias na ET em um uni
 }
 
 
-void reparaCarros(ET* head) {
+void reparaCarros(ET* head) { //Função utilizada para reparar carros
     ET* currentET = head;
 
     while (currentET != nullptr) {
@@ -365,7 +365,7 @@ void reparaCarros(ET* head) {
                     currentET->capacidade_atual--;
                 }
 
-                // Display
+                // Output do que aconteceu ao utilizador...
                 if (currentCar->data.tempo_reparacao == currentCar->data.dias_ET) {
                     cout << "O carro com ID " << currentCar->data.id << " foi removido da ET " << currentET->id
                         << " - Ultrapassou tempo máximo de reparação." << endl;
@@ -476,7 +476,7 @@ void adicionarPrioridade(ListaDeEspera* lista) {
     }
 }
 
-void adicionarET(ET*& listaET) {
+void adicionarET(ET*& listaET) { //Função para adicionar uma nova ET
     string mecânico, marca;
 
     cout << "Introduza o nome do mecânico: ";
@@ -583,7 +583,7 @@ void removerMecanico(ET*& listaET) {
 
 void SimulaDia(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho);
 
-void PainelDeGestao(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho){
+void PainelDeGestao(ListaDeEspera* head, ET* ethead, caminhosFicheiros* caminho){ //Função que controla menu de gestão
     bool sair = false;
     char escolha = ' ';
 
